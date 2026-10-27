@@ -71,10 +71,13 @@ function C000_Intro_Intro_Run() {
 
 	if (typeof DrawPlayerTransition === "function")
 		DrawPlayerTransition(PlayerTransitionFrame, {
-			x: 0, y: 0, w: UI_W, h: UI_BOTTOM_Y, pad: 40
+			x: 0, y: 0, w: UI_W, h: UI_BOTTOM_Y, pad: 8
 		});
 
-	DrawRect(40, UI_BOTTOM_Y - 20, UI_W - 80, UI_BOTTOM_H + 10, "rgba(0,0,0,0.55)");
+	DrawRect(40, UI_BOTTOM_Y - 20, UI_W - 80, UI_BOTTOM_H + 10, "rgba(18,10,24,0.78)");
+	MainCanvas.strokeStyle = "rgba(200,100,140,0.35)";
+	MainCanvas.lineWidth = 2;
+	MainCanvas.strokeRect(40, UI_BOTTOM_Y - 20, UI_W - 80, UI_BOTTOM_H + 10);
 
 	var pages = C000_Intro_Intro_GetPages();
 	var lines = pages[C000_Intro_Intro_Page] || pages[0];
