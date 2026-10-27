@@ -123,20 +123,22 @@ function KeyDown(event) {
 }
 
 function Click(event) {
-	if (!IsMobile) {
-		MouseMove(event);
-		DynamicFunction(CurrentChapter + "_" + CurrentScreen + "_Click()");
-		LeaveButtonClick();
+	// Always map coordinates from this event (works at any zoom / CSS scale)
+	if (event && event.clientX != null) {
+		var p = GetCanvasMouse(event.clientX, event.clientY);
+		MouseX = p.x; MouseY = p.y;
 	}
+	DynamicFunction(CurrentChapter + "_" + CurrentScreen + "_Click()");
+	LeaveButtonClick();
 }
 
 function Touch(event) {
-	if (IsMobile) {
-		var p = GetCanvasMouse(event.touches[0].clientX, event.touches[0].clientY);
-		MouseX = p.x; MouseY = p.y;
-		DynamicFunction(CurrentChapter + "_" + CurrentScreen + "_Click()");
-		LeaveButtonClick();
-	}
+	if (!event.touches || !event.touches[0]) return;
+	event.preventDefault();
+	var p = GetCanvasMouse(event.touches[0].clientX, event.touches[0].clientY);
+	MouseX = p.x; MouseY = p.y;
+	DynamicFunction(CurrentChapter + "_" + CurrentScreen + "_Click()");
+	LeaveButtonClick();
 }
 
 function MouseMove(event) {
