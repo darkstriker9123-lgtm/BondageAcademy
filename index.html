@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="cache-control" content="max-age=0" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="expires" content="0" />
+<meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+<meta http-equiv="pragma" content="no-cache" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Bondage Academy</title>
+<link rel="icon" type="image/png" href="Icons/Player_Active.png">
+</head>
+
+<!-- Core engine -->
+<script src="Common.js"></script>
+<script src="SaveState.js"></script>
+<script src="Drawing.js"></script>
+<script src="Actor.js"></script>
+<script src="Inventory.js"></script>
+<script src="Skill.js"></script>
+<script src="Time.js"></script>
+<script src="Struggle.js"></script>
+<script src="GameLog.js"></script>
+<script src="Cheat.js"></script>
+<script src="Event.js"></script>
+
+<!-- Intro -->
+<script src="C000_Intro/Intro/Script.js"></script>
+<script src="C000_Intro/ChapterSelect/Script.js"></script>
+<script src="C000_Intro/CreatePlayer/Script.js"></script>
+
+<!-- Shared / Common (C999) -->
+<script src="C999_Common/GameLoad/Script.js"></script>
+<script src="C999_Common/GameSave/Script.js"></script>
+<script src="C999_Common/Player/Script.js"></script>
+<script src="C999_Common/Cuffs/Script.js"></script>
+<script src="C999_Common/CuffsKey/Script.js"></script>
+<script src="C999_Common/Rope/Script.js"></script>
+<script src="C999_Common/Armbinder/Script.js"></script>
+<script src="C999_Common/Manacles/Script.js"></script>
+<script src="C999_Common/BallGag/Script.js"></script>
+<script src="C999_Common/TapeGag/Script.js"></script>
+<script src="C999_Common/ClothGag/Script.js"></script>
+<script src="C999_Common/PantieGag/Script.js"></script>
+<script src="C999_Common/SockGag/Script.js"></script>
+<script src="C999_Common/DoubleOpenGag/Script.js"></script>
+<script src="C999_Common/Collar/Script.js"></script>
+<script src="C999_Common/Blindfold/Script.js"></script>
+<script src="C999_Common/ButtPlug/Script.js"></script>
+<script src="C999_Common/VibratingEgg/Script.js"></script>
+<script src="C999_Common/ChastityBelt/Script.js"></script>
+<script src="C999_Common/Crop/Script.js"></script>
+<script src="C999_Common/SleepingPill/Script.js"></script>
+<script src="C999_Common/RustyHook/Script.js"></script>
+<script src="C999_Common/MetalSheet/Script.js"></script>
+<script src="C999_Common/Fights/Fight.js"></script>
+<script src="C999_Common/Fights/DoubleFight.js"></script>
+<script src="C999_Common/Races/Race.js"></script>
+<script src="C999_Common/Quiz/Quiz.js"></script>
+<script src="C999_Common/Achievements/Script.js"></script>
+
+<!--
+  Day chapters (C001_Day01 ... C030_Day30), C031_Outro, C032_Ending
+  will be added here as they are created.
+
+  Removed:
+  - All old C001_BeforeClass ... C012_AfterClass scripts
+  - C013_BondageClub (removed from remake)
+  - C101_KinbakuClub (integrated into day system)
+-->
+
+<script>
+
+// When the code is loaded, start on Intro and load the default language
+window.onload = function() {
+	CheatAllow = false;
+	MainCanvas = document.getElementById("MainCanvas").getContext("2d");
+	if (localStorage.getItem("CurrentLanguageTag")) CurrentLanguageTag = localStorage.getItem("CurrentLanguageTag");
+	IsMobile = DetectMobile();
+	document.getElementById("MainCanvas").addEventListener("keypress", KeyDown);
+	document.getElementById("MainCanvas").tabIndex = 1000;
+	SetScene("C000_Intro", "Intro");
+	MainRun();	
+};
+
+// Main game running state
+function MainRun() {
+	if (CurrentScreen != "CreatePlayer") document.getElementById("MainCanvas").focus();
+	ProcessTimer();
+	DynamicFunction(CurrentChapter + "_" + CurrentScreen + "_Run()");
+	BuildBottomBar();
+}
+
+// Key press
+function KeyDown(event) {
+	KeyPress = event.keyCode || event.which;
+	if (CheatAllow) CheatKey();
+	DynamicFunction(CurrentChapter + "_" + CurrentScreen + "_KeyDown()");
+}
+
+// Mouse click
+function Click(event) {
+	if (!IsMobile) {
+		MouseMove(event);
+		DynamicFunction(CurrentChapter + "_" + CurrentScreen + "_Click()");
+		LeaveButtonClick();
+	}
+}
+
+// Touch
+function Touch(event) {
+	if (IsMobile) {
+		var rect = document.getElementById("MainCanvas").getBoundingClientRect();
+		MouseX = event.touches[0].clientX - rect.left;
+		MouseY = event.touches[0].clientY - rect.top;
+		DynamicFunction(CurrentChapter + "_" + CurrentScreen + "_Click()");
+		LeaveButtonClick();
+	} 
+}
+
+// Mouse move
+function MouseMove(event) {
+	var rect = document.getElementById("MainCanvas").getBoundingClientRect();
+	MouseX = event.clientX - rect.left;
+	MouseY = event.clientY - rect.top;
+}
+
+// Mouse leave
+function LoseFocus(event) {
+	MouseX = -1;
+	MouseY = -1;
+}
+ 
+</script>
+
+<body style="padding:0px; margin:0px; margin-top:1px;">
+	<canvas id="MainCanvas" width="1920" height="1280" onClick="Click(event);" onTouchStart="Touch(event);" onMouseMove="MouseMove(event);" onMouseLeave="LoseFocus(event);" style="border:1px solid #000000; display:block; margin:0px; outline:none;"></canvas>
+</body>
+</html>

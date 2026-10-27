@@ -1,0 +1,7 @@
+Stage,LoveReq,SubReq,VarReq,OptionText,OptionNextStage,OptionLoveMod,OptionSubMod,OptionScript
+0,0,0,,New Game,0,0,0,"LoadChapter(""NewGame"")"
+0,0,0,,Language,30,0,0,
+0,0,0,,Credits,0,0,0,RollCredits()
+30,0,0,,English,0,0,0,"SetLanguage(""EN"")"
+30,0,0,,中文,0,0,0,"SetLanguage(""CN"")"
+30,0,0,,Back,0,0,0,
