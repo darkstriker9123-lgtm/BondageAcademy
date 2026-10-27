@@ -1,6 +1,6 @@
 Tag,Content
 EnterName,Enter a name and select a starting skill.
-ValidChars,Letters and spaces only (max 20). Chinese characters allowed.
+ValidChars,Letters, spaces, or Chinese characters only (max 20).
 Validate,Start the game
 Skill0,No skill
 Skill1,Arts
@@ -8,3 +8,9 @@ Skill2,Fighting
 Skill3,Rope Mastery
 Skill4,Sports
 Skill5,Seduction
+Skill6,Medicine
+Skill7,Stealth
+Skill8,Observation
+Skill9,Endurance
+Skill10,Psychology
+Skill11,Dance

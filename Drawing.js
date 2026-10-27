@@ -396,6 +396,11 @@ function DrawUsableItems() {
 }
 
 function BuildBottomBar() {
+	// Hide collection / day UI during pure C000 menu & intro screens
+	var hideChrome = (CurrentChapter == "C000_Intro" &&
+		(CurrentScreen == "Intro" || CurrentScreen == "ChapterSelect" || CurrentScreen == "CreatePlayer"));
+	if (hideChrome) return;
+
 	// Top collection bar
 	DrawRect(0, 0, UI_W, UI_TOP_H, "rgba(255,255,255,0.90)");
 	DrawRect(0, UI_TOP_H - 1, UI_W, 1, "black");
@@ -484,13 +489,56 @@ function DrawInteractionActor() {
 }
 
 // Intro transition frames: Actors/PlayerTransition/Player01.png … Player08.png
+// Accepts any source size (768x768, 300x600, etc.) and scales into the target box
 var PlayerTransitionFrame = 1;
+var PlayerTransitionAutoTimer = 0;
+var PlayerTransitionAutoInterval = 45; // frames between auto-advance (~0.75s at 60fps-ish MainRun)
 
-function DrawPlayerTransition(Frame) {
+function DrawPlayerTransition(Frame, Opt) {
 	var f = Frame;
 	if (f == null || f === undefined) f = PlayerTransitionFrame;
 	f = Math.max(1, Math.min(8, parseInt(f) || 1));
-	DrawImage("Actors/PlayerTransition/Player0" + f + ".png", 0, UI_TOP_H);
+	PlayerTransitionFrame = f;
+	var src = "Actors/PlayerTransition/Player0" + f + ".png";
+	var img = DrawGetImage(src);
+
+	// Layout box (defaults: main area under top bar; CreatePlayer can pass a right-side box)
+	var boxX = (Opt && Opt.x != null) ? Opt.x : 0;
+	var boxY = (Opt && Opt.y != null) ? Opt.y : UI_TOP_H;
+	var boxW = (Opt && Opt.w != null) ? Opt.w : UI_W;
+	var boxH = (Opt && Opt.h != null) ? Opt.h : (UI_BOTTOM_Y - UI_TOP_H);
+	// Keep a margin so character isn't edge-clipped
+	var pad = (Opt && Opt.pad != null) ? Opt.pad : 20;
+	var maxW = Math.max(100, boxW - pad * 2);
+	var maxH = Math.max(100, boxH - pad * 2);
+
+	var iw = (img && img.complete && img.naturalWidth) ? img.naturalWidth : ((img && img.width) ? img.width : 768);
+	var ih = (img && img.complete && img.naturalHeight) ? img.naturalHeight : ((img && img.height) ? img.height : 768);
+	if (!iw || !ih) { iw = 768; ih = 768; }
+
+	var scale = Math.min(maxW / iw, maxH / ih);
+	var dw = Math.round(iw * scale);
+	var dh = Math.round(ih * scale);
+	var dx = boxX + Math.floor((boxW - dw) / 2);
+	var dy = boxY + Math.floor((boxH - dh) / 2);
+
+	if (img && img.complete && img.naturalWidth > 0) {
+		try {
+			MainCanvas.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, dx, dy, dw, dh);
+		} catch (e) {
+			try { MainCanvas.drawImage(img, dx, dy, dw, dh); } catch (e2) {}
+		}
+	}
+}
+
+// Auto-cycle Player01–08 (used on Intro screens)
+function AdvancePlayerTransitionAuto() {
+	PlayerTransitionAutoTimer++;
+	if (PlayerTransitionAutoTimer >= PlayerTransitionAutoInterval) {
+		PlayerTransitionAutoTimer = 0;
+		PlayerTransitionFrame = (PlayerTransitionFrame % 8) + 1;
+	}
+	return PlayerTransitionFrame;
 }
 
 function GetIconScreenPath(IconName) {

@@ -73,7 +73,28 @@
 
 <script>
 
-// When the code is loaded, start on Intro and load the default language
+// Fit 1920×1280 canvas into the browser window (keeps aspect ratio)
+function FitCanvasToWindow() {
+	var canvas = document.getElementById("MainCanvas");
+	if (!canvas) return;
+	var maxW = window.innerWidth || 1920;
+	var maxH = window.innerHeight || 1280;
+	var scale = Math.min(maxW / 1920, maxH / 1280);
+	if (scale > 1) scale = 1;
+	if (scale < 0.2) scale = 0.2;
+	canvas.style.width = Math.floor(1920 * scale) + "px";
+	canvas.style.height = Math.floor(1280 * scale) + "px";
+}
+
+// Browser coords → logical 1920×1280 canvas coords (works at any zoom)
+function GetCanvasMouse(clientX, clientY) {
+	var rect = document.getElementById("MainCanvas").getBoundingClientRect();
+	return {
+		x: Math.round((clientX - rect.left) * (1920 / rect.width)),
+		y: Math.round((clientY - rect.top) * (1280 / rect.height))
+	};
+}
+
 window.onload = function() {
 	CheatAllow = false;
 	MainCanvas = document.getElementById("MainCanvas").getContext("2d");
@@ -81,26 +102,26 @@ window.onload = function() {
 	IsMobile = DetectMobile();
 	document.getElementById("MainCanvas").addEventListener("keypress", KeyDown);
 	document.getElementById("MainCanvas").tabIndex = 1000;
-	SetScene("C000_Intro", "Intro");
-	MainRun();	
+	FitCanvasToWindow();
+	window.addEventListener("resize", FitCanvasToWindow);
+	// Start at menu
+	SetScene("C000_Intro", "ChapterSelect");
+	MainRun();
 };
 
-// Main game running state
 function MainRun() {
 	if (CurrentScreen != "CreatePlayer") document.getElementById("MainCanvas").focus();
 	ProcessTimer();
 	DynamicFunction(CurrentChapter + "_" + CurrentScreen + "_Run()");
-	BuildBottomBar();
+	if (typeof BuildBottomBar === "function") BuildBottomBar();
 }
 
-// Key press
 function KeyDown(event) {
 	KeyPress = event.keyCode || event.which;
 	if (CheatAllow) CheatKey();
 	DynamicFunction(CurrentChapter + "_" + CurrentScreen + "_KeyDown()");
 }
 
-// Mouse click
 function Click(event) {
 	if (!IsMobile) {
 		MouseMove(event);
@@ -109,33 +130,28 @@ function Click(event) {
 	}
 }
 
-// Touch
 function Touch(event) {
 	if (IsMobile) {
-		var rect = document.getElementById("MainCanvas").getBoundingClientRect();
-		MouseX = event.touches[0].clientX - rect.left;
-		MouseY = event.touches[0].clientY - rect.top;
+		var p = GetCanvasMouse(event.touches[0].clientX, event.touches[0].clientY);
+		MouseX = p.x; MouseY = p.y;
 		DynamicFunction(CurrentChapter + "_" + CurrentScreen + "_Click()");
 		LeaveButtonClick();
-	} 
+	}
 }
 
-// Mouse move
 function MouseMove(event) {
-	var rect = document.getElementById("MainCanvas").getBoundingClientRect();
-	MouseX = event.clientX - rect.left;
-	MouseY = event.clientY - rect.top;
+	var p = GetCanvasMouse(event.clientX, event.clientY);
+	MouseX = p.x; MouseY = p.y;
 }
 
-// Mouse leave
 function LoseFocus(event) {
 	MouseX = -1;
 	MouseY = -1;
 }
- 
+
 </script>
 
-<body style="padding:0px; margin:0px; margin-top:1px;">
-	<canvas id="MainCanvas" width="1920" height="1280" onClick="Click(event);" onTouchStart="Touch(event);" onMouseMove="MouseMove(event);" onMouseLeave="LoseFocus(event);" style="border:1px solid #000000; display:block; margin:0px; outline:none;"></canvas>
+<body style="padding:0; margin:0; background:#111; overflow:auto;">
+	<canvas id="MainCanvas" width="1920" height="1280" onClick="Click(event);" onTouchStart="Touch(event);" onMouseMove="MouseMove(event);" onMouseLeave="LoseFocus(event);" style="border:1px solid #000; display:block; margin:0 auto; outline:none; background:#000;"></canvas>
 </body>
 </html>

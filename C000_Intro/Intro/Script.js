@@ -1,10 +1,9 @@
 // C000_Intro / Intro — pre-day story intro (not part of Day 01–30)
 // Title: Bondage Academy
+// PlayerTransition auto-cycles Player01–08 while text pages advance on click
 
-var C000_Intro_Intro_Frame = 1;
 var C000_Intro_Intro_Page = 0;
 
-// Fallback English pages (Text_*.csv overrides when available)
 var C000_Intro_Intro_Pages_EN = [
 	[
 		"You transfer to a strict private college.",
@@ -49,26 +48,32 @@ function C000_Intro_Intro_GetPages() {
 function C000_Intro_Intro_Load() {
 	LeaveIcon = "";
 	LeaveScreen = "";
-	C000_Intro_Intro_Frame = 1;
 	C000_Intro_Intro_Page = 0;
 	PlayerTransitionFrame = 1;
+	if (typeof PlayerTransitionAutoTimer !== "undefined") PlayerTransitionAutoTimer = 0;
 	if (typeof StopTimer === "function") StopTimer(8 * 60 * 60 * 1000);
 }
 
 function C000_Intro_Intro_Run() {
-	// Background
 	try {
-		DrawImage(CurrentChapter + "/" + CurrentScreen + "/Background.jpg", 0, 0);
+		var bg = DrawGetImage(CurrentChapter + "/" + CurrentScreen + "/Background.jpg");
+		if (bg && bg.complete && bg.naturalWidth > 0)
+			MainCanvas.drawImage(bg, 0, 0, bg.naturalWidth, bg.naturalHeight, 0, 0, UI_W, UI_H);
+		else
+			DrawImage(CurrentChapter + "/" + CurrentScreen + "/Background.jpg", 0, 0);
 	} catch (e) {
 		DrawRect(0, 0, UI_W, UI_H, "#1a1a24");
 	}
 
-	// Player transition frame (Player01–08)
-	PlayerTransitionFrame = C000_Intro_Intro_Frame;
-	if (typeof DrawPlayerTransition === "function")
-		DrawPlayerTransition(C000_Intro_Intro_Frame);
+	// Auto-cycle through all 8 player outfits
+	if (typeof AdvancePlayerTransitionAuto === "function")
+		AdvancePlayerTransitionAuto();
 
-	// Bottom dialogue panel
+	if (typeof DrawPlayerTransition === "function")
+		DrawPlayerTransition(PlayerTransitionFrame, {
+			x: 0, y: 0, w: UI_W, h: UI_BOTTOM_Y, pad: 40
+		});
+
 	DrawRect(40, UI_BOTTOM_Y - 20, UI_W - 80, UI_BOTTOM_H + 10, "rgba(0,0,0,0.55)");
 
 	var pages = C000_Intro_Intro_GetPages();
@@ -81,7 +86,6 @@ function C000_Intro_Intro_Run() {
 	for (var i = 0; i < lines.length; i++)
 		MainCanvas.fillText(lines[i], 80, baseY + i * 48);
 
-	// Continue hint
 	MainCanvas.font = UI_FONT_SM;
 	MainCanvas.fillStyle = "rgba(255,255,255,0.7)";
 	MainCanvas.textAlign = "right";
@@ -92,8 +96,6 @@ function C000_Intro_Intro_Run() {
 function C000_Intro_Intro_Click() {
 	var pages = C000_Intro_Intro_GetPages();
 	C000_Intro_Intro_Page++;
-	C000_Intro_Intro_Frame = Math.min(8, C000_Intro_Intro_Frame + 1);
-	PlayerTransitionFrame = C000_Intro_Intro_Frame;
 	if (C000_Intro_Intro_Page >= pages.length)
 		SetScene(CurrentChapter, "CreatePlayer");
 }

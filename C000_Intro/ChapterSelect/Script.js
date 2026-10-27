@@ -15,9 +15,12 @@ function C000_Intro_ChapterSelect_Load() {
 
 function C000_Intro_ChapterSelect_Run() {
 	DrawRect(0, 0, UI_W, UI_H, "#f0f0f4");
-	PlayerTransitionFrame = 2;
+	if (typeof AdvancePlayerTransitionAuto === "function")
+		AdvancePlayerTransitionAuto();
 	if (typeof DrawPlayerTransition === "function")
-		DrawPlayerTransition(2);
+		DrawPlayerTransition(PlayerTransitionFrame, {
+			x: Math.floor(UI_W * 0.45), y: 80, w: Math.floor(UI_W * 0.55), h: UI_H - 160, pad: 20
+		});
 
 	if (C000_Intro_ChapterSelect_CreditMode) {
 		DrawRect(0, 0, UI_W, UI_H, "#111");
