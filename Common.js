@@ -76,20 +76,20 @@ var Common_PlayerForSale = false;		// on the black market
 var Common_PlayerInCage = false;		// locked in a cage
 var Common_PlayerEscaped = false;		// recently escaped
 
-// Chapter list for the remake (B style - zero padded)
-// Kinbaku Club is integrated into the day system (no separate C101)
-var Common_ChapterList = [
-	"C000_Intro",
-	"C001_Day01", "C002_Day02", "C003_Day03", "C004_Day04", "C005_Day05",
-	"C006_Day06", "C007_Day07", "C008_Day08", "C009_Day09", "C010_Day10",
-	"C011_Day11", "C012_Day12", "C013_Day13", "C014_Day14", "C015_Day15",
-	"C016_Day16", "C017_Day17", "C018_Day18", "C019_Day19", "C020_Day20",
-	"C021_Day21", "C022_Day22", "C023_Day23", "C024_Day24", "C025_Day25",
-	"C026_Day26", "C027_Day27", "C028_Day28", "C029_Day29", "C030_Day30",
-	"C031_Outro",
-	"C032_Ending",
-	"C999_Common"			// shared resources (ActorNames, icons, etc.)
-];
+// Chapter list for the remake — 100 days + Outro/Ending
+// Kinbaku Club is integrated into the day system (no separate club chapter)
+var Common_ChapterList = (function () {
+	var list = ["C000_Intro"];
+	for (var d = 1; d <= 100; d++) {
+		var n3 = ("000" + d).slice(-3);
+		var n2 = (d < 100) ? ("00" + d).slice(-2) : String(d);
+		list.push("C" + n3 + "_Day" + n2);
+	}
+	list.push("C101_Outro");
+	list.push("C102_Ending");
+	list.push("C999_Common");	// shared resources (ActorNames, icons, etc.)
+	return list;
+})();
 
 // Returns TRUE if the variable is a number
 function IsNumeric(n) {

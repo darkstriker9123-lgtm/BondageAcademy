@@ -1,6 +1,6 @@
 // ===== TIME SYSTEM (Remake) =====
 // Day starts 07:30, classes 08:30, lunch 11:30 (1h), afternoon break 17:00 (1h),
-// evening from 19:30 until 00:00. 30 days total.
+// evening from 19:30 until 00:00. 100 days total.
 
 var RunTimer = false;
 var RunInterval = 20;
@@ -11,8 +11,8 @@ var LimitChapter = "";
 var LimitScreen = "";
 
 // New day system
-var CurrentDay = 1;				// 1 to 30
-var MaxDay = 30;
+var CurrentDay = 1;				// 1 to 100
+var MaxDay = 100;
 
 // Time of day in minutes from midnight (easier for schedule)
 // 07:30 = 450, 08:30 = 510, 11:30 = 690, 12:30 = 750,
@@ -159,18 +159,19 @@ function SetTime(minutes) {
 	CurrentTime = CurrentMinute * 60000;
 }
 
-// Helper: build chapter name from day number (C001_Day01, C010_Day10, C030_Day30)
+// Helper: build chapter name from day number
+// C001_Day01 … C099_Day99, C100_Day100
 function BuildDayChapterName(day) {
-	var chapterNum = ("000" + day).slice(-3);	// 001, 010, 030
-	var dayNum = ("00" + day).slice(-2);		// 01, 10, 30
+	var chapterNum = ("000" + day).slice(-3);
+	var dayNum = (day < 100) ? ("00" + day).slice(-2) : String(day);
 	return "C" + chapterNum + "_Day" + dayNum;
 }
 
 // Start a new day (call when player sleeps / day advances)
 function StartNewDay() {
 	if (CurrentDay >= MaxDay) {
-		// Go to Outro
-		SetScene("C031_Outro", "Outro");
+		// Go to Outro (after Day 100)
+		SetScene("C101_Outro", "Outro");
 		return;
 	}
 	CurrentDay++;

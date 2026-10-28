@@ -79,7 +79,7 @@ function C000_Intro_ChapterSelect_Run() {
 		MainCanvas.fillText((CurrentLanguageTag == "CN") ? "束缚学院" : "Bondage Academy", UI_W / 2, 420);
 		MainCanvas.font = UI_FONT_SM;
 		MainCanvas.fillStyle = "#c8a0b8";
-		MainCanvas.fillText((CurrentLanguageTag == "CN") ? "三十天 · 每一种关系都有可能" : "Thirty days. Every bond is possible.", UI_W / 2, 500);
+		MainCanvas.fillText((CurrentLanguageTag == "CN") ? "一百天 · 每一种关系都有可能" : "One hundred days. Every bond is possible.", UI_W / 2, 500);
 		MainCanvas.fillText((CurrentLanguageTag == "CN") ? "原作：Ben987 与贡献者" : "Original game by Ben987 and contributors", UI_W / 2, 580);
 		MainCanvas.fillStyle = "rgba(255,255,255,0.55)";
 		MainCanvas.fillText((CurrentLanguageTag == "CN") ? "点击返回" : "Click to return", UI_W / 2, 920);
@@ -101,7 +101,7 @@ function C000_Intro_ChapterSelect_Run() {
 	MainCanvas.font = "24px Arial";
 	MainCanvas.fillStyle = "#d0a8c0";
 	MainCanvas.fillText(
-		(CurrentLanguageTag == "CN") ? "三十天 · 每一种关系都有可能" : "Thirty days · Every bond is possible",
+		(CurrentLanguageTag == "CN") ? "一百天 · 每一种关系都有可能" : "One hundred days · Every bond is possible",
 		80, 230
 	);
 

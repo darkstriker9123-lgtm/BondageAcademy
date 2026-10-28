@@ -16,7 +16,7 @@ var C000_Intro_Intro_Pages_EN = [
 		"Love. Control. Or being controlled."
 	],
 	[
-		"Thirty days. Your choices shape every bond.",
+		"One hundred days. Your choices shape every bond.",
 		"Girlfriend. Owner. Or owned — any day, any person.",
 		"Be curious. Be careful. Be honest about what you want."
 	]
@@ -34,7 +34,7 @@ var C000_Intro_Intro_Pages_CN = [
 		"恋爱、支配，或者被支配。"
 	],
 	[
-		"三十天。你的选择决定每一种羁绊。",
+		"一百天。你的选择决定每一种羁绊。",
 		"成为女友、拥有对方，或被对方拥有——任何一天、任何人。",
 		"保持好奇，保持谨慎，诚实面对自己想要什么。"
 	]
