@@ -395,6 +395,145 @@ function DrawUsableItems() {
 	}
 }
 
+// ===== Stats panel (character love / dom-sub overview) =====
+var StatsPanelOpen = false;
+var StatsPanelScroll = 0;
+var STATS_BTN_W = 110;
+var STATS_BTN_H = 70;
+// Place Stats button on the top bar, right side of inventory area / left of day text
+var STATS_BTN_X = UI_W - 430;
+var STATS_BTN_Y = 15;
+
+function DrawStatsButton() {
+	var hover = ((MouseX >= STATS_BTN_X) && (MouseX <= STATS_BTN_X + STATS_BTN_W) &&
+		(MouseY >= STATS_BTN_Y) && (MouseY <= STATS_BTN_Y + STATS_BTN_H)) || IsMobile;
+	DrawRect(STATS_BTN_X, STATS_BTN_Y, STATS_BTN_W, STATS_BTN_H, hover ? "rgba(200,80,120,0.85)" : "rgba(40,30,50,0.85)");
+	MainCanvas.strokeStyle = hover ? "rgba(255,200,220,0.9)" : "rgba(200,100,140,0.55)";
+	MainCanvas.lineWidth = 2;
+	MainCanvas.strokeRect(STATS_BTN_X, STATS_BTN_Y, STATS_BTN_W, STATS_BTN_H);
+	MainCanvas.font = "28px Arial";
+	MainCanvas.fillStyle = "#ffffff";
+	MainCanvas.textAlign = "center";
+	MainCanvas.textBaseline = "middle";
+	MainCanvas.fillText((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "状态" : "Stats",
+		STATS_BTN_X + STATS_BTN_W / 2, STATS_BTN_Y + STATS_BTN_H / 2);
+}
+
+function DrawStatsPanel() {
+	if (!StatsPanelOpen) return;
+
+	// Dim background
+	DrawRect(0, 0, UI_W, UI_H, "rgba(0,0,0,0.55)");
+
+	var panelW = 900;
+	var panelH = 980;
+	var panelX = Math.floor((UI_W - panelW) / 2);
+	var panelY = 80;
+
+	DrawRect(panelX, panelY, panelW, panelH, "rgb(28,18,36)");
+	MainCanvas.strokeStyle = "rgba(200,100,140,0.7)";
+	MainCanvas.lineWidth = 3;
+	MainCanvas.strokeRect(panelX, panelY, panelW, panelH);
+
+	// Title
+	MainCanvas.font = "40px Arial";
+	MainCanvas.fillStyle = "#ffffff";
+	MainCanvas.textAlign = "left";
+	MainCanvas.textBaseline = "middle";
+	MainCanvas.fillText((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "角色状态" : "Character Stats", panelX + 36, panelY + 48);
+
+	// Close hint
+	MainCanvas.font = "24px Arial";
+	MainCanvas.fillStyle = "rgba(255,255,255,0.65)";
+	MainCanvas.textAlign = "right";
+	MainCanvas.fillText((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "点击关闭" : "Click to close", panelX + panelW - 36, panelY + 48);
+
+	// Header row
+	var rowY = panelY + 100;
+	MainCanvas.font = "26px Arial";
+	MainCanvas.fillStyle = "rgba(255,200,220,0.85)";
+	MainCanvas.textAlign = "left";
+	MainCanvas.fillText((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "名字" : "Name", panelX + 40, rowY);
+	MainCanvas.fillText((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "好感" : "Love", panelX + 360, rowY);
+	MainCanvas.fillText((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "支配/服从" : "Dom / Sub", panelX + 560, rowY);
+	MainCanvas.fillText((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "关系" : "Link", panelX + 760, rowY);
+	DrawRect(panelX + 30, rowY + 22, panelW - 60, 2, "rgba(200,100,140,0.35)");
+
+	// Actor rows
+	if (typeof Actor === "undefined" || !Actor || Actor.length == 0) {
+		MainCanvas.font = "28px Arial";
+		MainCanvas.fillStyle = "rgba(255,255,255,0.7)";
+		MainCanvas.textAlign = "center";
+		MainCanvas.fillText((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "还没有认识的角色" : "No characters met yet", panelX + panelW / 2, panelY + panelH / 2);
+		return;
+	}
+
+	var rowH = 52;
+	var startY = rowY + 48;
+	var maxRows = Math.floor((panelH - 160) / rowH);
+	if (StatsPanelScroll < 0) StatsPanelScroll = 0;
+	var maxScroll = Math.max(0, Actor.length - maxRows);
+	if (StatsPanelScroll > maxScroll) StatsPanelScroll = maxScroll;
+
+	MainCanvas.font = "28px Arial";
+	MainCanvas.textBaseline = "middle";
+	for (var i = 0; i < maxRows; i++) {
+		var idx = StatsPanelScroll + i;
+		if (idx >= Actor.length) break;
+		var a = Actor[idx];
+		var name = a[ActorName] || ("#" + idx);
+		var love = a[ActorLove] || 0;
+		var sub = a[ActorSubmission] || 0;
+		var y = startY + i * rowH;
+
+		// Alternate row tint
+		if (i % 2 == 0) DrawRect(panelX + 24, y - 22, panelW - 48, rowH - 4, "rgba(255,255,255,0.04)");
+
+		MainCanvas.textAlign = "left";
+		MainCanvas.fillStyle = "#ffffff";
+		MainCanvas.fillText(String(name), panelX + 40, y);
+
+		// Love
+		MainCanvas.fillStyle = (love > 0) ? "#7CFF7C" : ((love < 0) ? "#FF7C7C" : "#cccccc");
+		MainCanvas.fillText((love > 0 ? "+" : "") + String(love), panelX + 360, y);
+
+		// Dom/Sub (positive = more dominant over them / their submission to player)
+		MainCanvas.fillStyle = (sub > 0) ? "#7CC8FF" : ((sub < 0) ? "#FFB07C" : "#cccccc");
+		MainCanvas.fillText((sub > 0 ? "+" : "") + String(sub), panelX + 560, y);
+
+		// Relationship tags
+		var link = "";
+		if (typeof Common_PlayerLover !== "undefined" && Common_PlayerLover == name) link = (CurrentLanguageTag == "CN") ? "恋人" : "Lover";
+		else if (typeof Common_PlayerOwner !== "undefined" && Common_PlayerOwner == name) link = (CurrentLanguageTag == "CN") ? "主人" : "Owner";
+		else if (a[ActorOwner] == "Player") link = (CurrentLanguageTag == "CN") ? "你的" : "Owned";
+		MainCanvas.fillStyle = "#e8c0d0";
+		MainCanvas.fillText(link, panelX + 760, y);
+	}
+
+	// Scroll hint
+	if (Actor.length > maxRows) {
+		MainCanvas.font = "22px Arial";
+		MainCanvas.fillStyle = "rgba(255,255,255,0.5)";
+		MainCanvas.textAlign = "center";
+		MainCanvas.fillText((StatsPanelScroll + 1) + "–" + Math.min(StatsPanelScroll + maxRows, Actor.length) + " / " + Actor.length, panelX + panelW / 2, panelY + panelH - 28);
+	}
+}
+
+function StatsButtonClick() {
+	if (!((MouseX >= STATS_BTN_X) && (MouseX <= STATS_BTN_X + STATS_BTN_W) &&
+		(MouseY >= STATS_BTN_Y) && (MouseY <= STATS_BTN_Y + STATS_BTN_H))) return false;
+	StatsPanelOpen = !StatsPanelOpen;
+	if (StatsPanelOpen) StatsPanelScroll = 0;
+	return true;
+}
+
+function StatsPanelClick() {
+	if (!StatsPanelOpen) return false;
+	// Any click closes the panel (simple UX)
+	StatsPanelOpen = false;
+	return true;
+}
+
 function BuildBottomBar() {
 	// Hide collection / day UI during pure C000 menu & intro screens
 	var hideChrome = (CurrentChapter == "C000_Intro" &&
@@ -405,6 +544,7 @@ function BuildBottomBar() {
 	DrawRect(0, 0, UI_W, UI_TOP_H, "rgba(255,255,255,0.90)");
 	DrawRect(0, UI_TOP_H - 1, UI_W, 1, "black");
 	DrawInventory();
+	DrawStatsButton();
 	if (typeof CurrentDay !== "undefined" && typeof GetCurrentTimeString === "function") {
 		MainCanvas.font = "26px Arial";
 		MainCanvas.fillStyle = "black";
@@ -419,6 +559,9 @@ function BuildBottomBar() {
 	}
 	// Left floating "use now" icons
 	DrawUsableItems();
+
+	// Stats overlay on top of everything in the chrome pass
+	DrawStatsPanel();
 }
 
 function DrawGetPlayerImageName(IncludePose) {
@@ -516,11 +659,19 @@ function DrawPlayerTransition(Frame, Opt) {
 	var ih = (img && img.complete && img.naturalHeight) ? img.naturalHeight : ((img && img.height) ? img.height : 768);
 	if (!iw || !ih) { iw = 768; ih = 768; }
 
+	// Three-quarter / portrait friendly: fit by height so the upper body
+	// fills the frame; center horizontally; slight top bias.
 	var scale = Math.min(maxW / iw, maxH / ih);
+	if (ih >= iw * 1.15) {
+		scale = Math.min(maxW / iw, (maxH * 1.02) / ih);
+		if (scale * iw > maxW) scale = maxW / iw;
+	}
 	var dw = Math.round(iw * scale);
 	var dh = Math.round(ih * scale);
 	var dx = boxX + Math.floor((boxW - dw) / 2);
-	var dy = boxY + Math.floor((boxH - dh) / 2);
+	var dy = boxY + Math.max(pad, Math.floor((boxH - dh) * 0.18));
+	if (dy + dh > boxY + boxH - pad) dy = boxY + boxH - pad - dh;
+	if (dy < boxY + pad) dy = boxY + pad;
 
 	if (img && img.complete && img.naturalWidth > 0) {
 		try {

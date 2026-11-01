@@ -74,8 +74,9 @@ function C000_Intro_Intro_Run() {
 			x: 0, y: 0, w: UI_W, h: UI_BOTTOM_Y, pad: 8
 		});
 
-	DrawRect(40, UI_BOTTOM_Y - 20, UI_W - 80, UI_BOTTOM_H + 10, "rgba(18,10,24,0.78)");
-	MainCanvas.strokeStyle = "rgba(200,100,140,0.35)";
+	// Opaque intro text box (no transparency over the character)
+	DrawRect(40, UI_BOTTOM_Y - 20, UI_W - 80, UI_BOTTOM_H + 10, "rgb(18,10,24)");
+	MainCanvas.strokeStyle = "rgba(200,100,140,0.55)";
 	MainCanvas.lineWidth = 2;
 	MainCanvas.strokeRect(40, UI_BOTTOM_Y - 20, UI_W - 80, UI_BOTTOM_H + 10);
 

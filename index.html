@@ -128,6 +128,9 @@ function Click(event) {
 		var p = GetCanvasMouse(event.clientX, event.clientY);
 		MouseX = p.x; MouseY = p.y;
 	}
+	// Stats panel / button consume the click first
+	if (typeof StatsPanelClick === "function" && StatsPanelClick()) return;
+	if (typeof StatsButtonClick === "function" && StatsButtonClick()) return;
 	DynamicFunction(CurrentChapter + "_" + CurrentScreen + "_Click()");
 	LeaveButtonClick();
 }
@@ -137,6 +140,8 @@ function Touch(event) {
 	event.preventDefault();
 	var p = GetCanvasMouse(event.touches[0].clientX, event.touches[0].clientY);
 	MouseX = p.x; MouseY = p.y;
+	if (typeof StatsPanelClick === "function" && StatsPanelClick()) return;
+	if (typeof StatsButtonClick === "function" && StatsButtonClick()) return;
 	DynamicFunction(CurrentChapter + "_" + CurrentScreen + "_Click()");
 	LeaveButtonClick();
 }
