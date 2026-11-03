@@ -230,10 +230,18 @@ function LoadText() {
 
 // Calls a dynamic function (if it exists)
 function DynamicFunction(FunctionName) {
-	if (typeof window[FunctionName.substr(0, FunctionName.indexOf("("))] == "function") {
-		var Fct = new Function(FunctionName);
-		Fct();
-	} else console.log("Trying to launch invalid function: " + FunctionName);
+	if (!FunctionName || typeof FunctionName !== "string") return;
+	var name = FunctionName.indexOf("(") >= 0 ? FunctionName.substr(0, FunctionName.indexOf("(")) : FunctionName;
+	if (typeof window[name] == "function") {
+		try {
+			var Fct = new Function(FunctionName);
+			Fct();
+		} catch (e) {
+			console.log("DynamicFunction error: " + FunctionName, e);
+		}
+	} else if (FunctionName) {
+		console.log("Trying to launch invalid function: " + FunctionName);
+	}
 }
 
 // Set the current scene (chapter and screen)
@@ -287,9 +295,14 @@ function ClickInteraction(CurrentStagePosition) {
 		if ((MouseX >= UI_OPT_X) && (MouseX <= UI_OPT_X + UI_OPT_W) && (MouseY >= top) && (MouseY <= top + UI_OPT_H)) {
 			var opt = show[i];
 			InteractionOptionPage = 0; // reset page on choice
-			CurrentStagePosition = opt[StageNextStage];
+			CurrentStagePosition = parseInt(opt[StageNextStage], 10);
+			if (isNaN(CurrentStagePosition)) CurrentStagePosition = 0;
+			// Write back to chapter screen stage var (JS numbers are pass-by-value)
+			var stageVar = CurrentChapter + "_" + CurrentScreen + "_CurrentStage";
+			window[stageVar] = CurrentStagePosition;
 			ActorChangeAttitude(opt[StageLoveMod], opt[StageSubMod]);
-			if (opt[StageFunction] != "") DynamicFunction(opt[StageFunction]);
+			if (opt[StageFunction] != "" && opt[StageFunction] != null)
+				DynamicFunction(opt[StageFunction]);
 			if (opt[StageInteractionResult].indexOf("ADD_MINUTES:") == 0) {
 				var Minutes = parseInt(opt[StageInteractionResult].substr(12));
 				if (!isNaN(Minutes)) {

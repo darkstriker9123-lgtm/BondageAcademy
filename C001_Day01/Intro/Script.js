@@ -12,13 +12,16 @@ function C001_Day01_Intro_Load() {
 
 function C001_Day01_Intro_Run() {
 	DrawImage(CurrentChapter + "/" + CurrentScreen + "/Background.jpg", 0, 0);
-	DrawRect(40, 40, 900, 700, "rgba(18,10,24,0.55)");
-	var lines = ["Line1", "Line2", "Line3", "Line4", "Line5", "Line6"];
-	for (var i = 0; i < lines.length; i++) {
-		if (TextPhase >= i) {
-			var t = (typeof GetText === "function") ? GetText(lines[i]) : lines[i];
-			if (!t || String(t).indexOf("MISSING") == 0) t = "";
-			if (t) DrawText(t, 490, 100 + i * 90, "White");
+	var keys = ["Line1", "Line2", "Line3", "Line4", "Line5", "Line6"];
+	if (typeof DrawStoryPanel === "function")
+		DrawStoryPanel(keys, TextPhase, { x: 48, y: UI_TOP_H + 20, w: 880, h: 900 });
+	else {
+		DrawRect(48, UI_TOP_H + 20, 880, 900, "rgba(18,10,24,0.62)");
+		for (var i = 0; i < keys.length; i++) {
+			if (TextPhase < i) break;
+			var t = GetText(keys[i]);
+			if (t && String(t).indexOf("MISSING") != 0)
+				DrawTextLeft(t, 84, UI_TOP_H + 80 + i * 100, "White");
 		}
 	}
 }

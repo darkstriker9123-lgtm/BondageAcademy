@@ -102,6 +102,53 @@ function DrawText(Text, X, Y, Color) {
 
 
 // Safe stub: some early chapter scripts called this; engine uses TextPhase + DrawText instead
+
+// Story text panel: left-aligned wrapped lines under top bar
+function DrawStoryPanel(lineKeys, phase, opt) {
+	opt = opt || {};
+	var x = opt.x != null ? opt.x : 48;
+	var y = opt.y != null ? opt.y : (UI_TOP_H + 24);
+	var w = opt.w != null ? opt.w : 860;
+	var h = opt.h != null ? opt.h : 780;
+	var pad = opt.pad != null ? opt.pad : 36;
+	var lineH = opt.lineH != null ? opt.lineH : 52;
+	DrawRect(x, y, w, h, "rgba(18,10,24,0.62)");
+	MainCanvas.strokeStyle = "rgba(255,200,220,0.25)";
+	MainCanvas.lineWidth = 2;
+	MainCanvas.strokeRect(x, y, w, h);
+	MainCanvas.font = UI_FONT;
+	MainCanvas.fillStyle = "#ffffff";
+	MainCanvas.textAlign = "left";
+	MainCanvas.textBaseline = "top";
+	var maxW = w - pad * 2;
+	var cy = y + pad;
+	var maxY = y + h - pad;
+	for (var i = 0; i < lineKeys.length; i++) {
+		if (phase < i) break;
+		var raw = (typeof GetText === "function") ? GetText(lineKeys[i]) : lineKeys[i];
+		if (!raw || String(raw).indexOf("MISSING") == 0) continue;
+		raw = String(raw).replace("COMMON_PLAYERNAME", typeof Common_PlayerName !== "undefined" ? Common_PlayerName : "");
+		var words = raw.split(" ");
+		var line = "";
+		for (var wi = 0; wi < words.length; wi++) {
+			var test = line ? (line + " " + words[wi]) : words[wi];
+			if (MainCanvas.measureText(test).width > maxW && line) {
+				MainCanvas.fillText(line, x + pad, cy);
+				cy += lineH;
+				line = words[wi];
+				if (cy > maxY) return;
+			} else {
+				line = test;
+			}
+		}
+		if (line) {
+			MainCanvas.fillText(line, x + pad, cy);
+			cy += lineH + 12;
+		}
+		if (cy > maxY) return;
+	}
+}
+
 function DrawTextInteraction() {
 	// no-op fallback — prefer explicit TextPhase drawing in chapter scripts
 }
