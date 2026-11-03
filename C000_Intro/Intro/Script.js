@@ -1,109 +1,40 @@
-// C000_Intro / Intro — pre-day story intro (not part of Day 01–30)
-// Title: Bondage Academy
-// PlayerTransition auto-cycles Player01–08 while text pages advance on click
-
-var C000_Intro_Intro_Page = 0;
-
-var C000_Intro_Intro_Pages_EN = [
-	[
-		"You transfer to a strict private college.",
-		"The rules are heavy. The air feels tense.",
-		"Everyone watches everyone else."
-	],
-	[
-		"Students, teachers, clubs, and people outside campus…",
-		"Any of them could become close to you.",
-		"Love. Control. Or being controlled."
-	],
-	[
-		"One hundred days. Your choices shape every bond.",
-		"Girlfriend. Owner. Or owned — any day, any person.",
-		"Be curious. Be careful. Be honest about what you want."
-	]
-];
-
-var C000_Intro_Intro_Pages_CN = [
-	[
-		"你转学进入一所严格的私立学院。",
-		"规矩很重，空气也很紧张。",
-		"每个人都在看着彼此。"
-	],
-	[
-		"学生、老师、社团，还有校外的人……",
-		"任何人都可能与你产生关系。",
-		"恋爱、支配，或者被支配。"
-	],
-	[
-		"一百天。你的选择决定每一种羁绊。",
-		"成为女友、拥有对方，或被对方拥有——任何一天、任何人。",
-		"保持好奇，保持谨慎，诚实面对自己想要什么。"
-	]
-];
-
-function C000_Intro_Intro_GetPages() {
-	if (CurrentLanguageTag == "CN") return C000_Intro_Intro_Pages_CN;
-	return C000_Intro_Intro_Pages_EN;
-}
-
+// Chapter 0 - Intro Load (pre-day story intro, not part of Day 01–100)
 function C000_Intro_Intro_Load() {
+
 	LeaveIcon = "";
 	LeaveScreen = "";
-	C000_Intro_Intro_Page = 0;
-	PlayerTransitionFrame = 1;
-	if (typeof PlayerTransitionAutoTimer !== "undefined") PlayerTransitionAutoTimer = 0;
-	if (typeof StopTimer === "function") StopTimer(8 * 60 * 60 * 1000);
+
+	// Early morning placeholder time
+	StopTimer(8 * 60 * 60 * 1000);
+
 }
 
+// Chapter 0 - Intro Run
 function C000_Intro_Intro_Run() {
-	try {
-		var bg = DrawGetImage(CurrentChapter + "/" + CurrentScreen + "/Background.jpg");
-		if (bg && bg.complete && bg.naturalWidth > 0)
-			MainCanvas.drawImage(bg, 0, 0, bg.naturalWidth, bg.naturalHeight, 0, 0, UI_W, UI_H);
-		else
-			DrawImage(CurrentChapter + "/" + CurrentScreen + "/Background.jpg", 0, 0);
-	} catch (e) {
-		DrawRect(0, 0, UI_W, UI_H, "#1a1a24");
-	}
 
-	// Auto-cycle through all 8 player outfits
-	if (typeof AdvancePlayerTransitionAuto === "function")
-		AdvancePlayerTransitionAuto();
+	// Background and player
+	DrawImage(CurrentChapter + "/" + CurrentScreen + "/Background.jpg", 0, 0);
+	DrawPlayerTransition();
 
-	if (typeof DrawPlayerTransition === "function")
-		DrawPlayerTransition(PlayerTransitionFrame, {
-			x: 0, y: 0, w: UI_W, h: UI_BOTTOM_Y, pad: 8
-		});
+	// Semi-transparent text panel (not opaque)
+	DrawRect(40, 10, 820, 920, "rgba(18,10,24,0.45)");
 
-	// Opaque intro text box (no transparency over the character)
-	DrawRect(40, UI_BOTTOM_Y - 20, UI_W - 80, UI_BOTTOM_H + 10, "rgb(18,10,24)");
-	MainCanvas.strokeStyle = "rgba(200,100,140,0.55)";
-	MainCanvas.lineWidth = 2;
-	MainCanvas.strokeRect(40, UI_BOTTOM_Y - 20, UI_W - 80, UI_BOTTOM_H + 10);
+	// Story intro — click to reveal lines (Bondage College style)
+	DrawText(GetText("Intro1"), 450, 50, "White");
+	if (TextPhase >= 1) DrawText(GetText("Intro2"), 450, 150, "White");
+	if (TextPhase >= 2) DrawText(GetText("Intro3"), 450, 250, "White");
+	if (TextPhase >= 3) DrawText(GetText("Intro4"), 450, 350, "White");
+	if (TextPhase >= 4) DrawText(GetText("Intro5"), 450, 450, "White");
+	if (TextPhase >= 5) DrawText(GetText("Intro6"), 450, 550, "White");
+	if (TextPhase >= 6) DrawText(GetText("Intro7"), 450, 650, "White");
+	if (TextPhase >= 7) DrawText(GetText("Intro8"), 450, 750, "White");
+	if (TextPhase >= 8) DrawText(GetText("Intro9"), 450, 850, "White");
 
-	var pages = C000_Intro_Intro_GetPages();
-	var lines = pages[C000_Intro_Intro_Page] || pages[0];
-	MainCanvas.font = UI_FONT;
-	MainCanvas.fillStyle = "white";
-	MainCanvas.textAlign = "left";
-	MainCanvas.textBaseline = "middle";
-	var baseY = UI_BOTTOM_Y + 40;
-	for (var i = 0; i < lines.length; i++)
-		MainCanvas.fillText(lines[i], 80, baseY + i * 48);
-
-	MainCanvas.font = UI_FONT_SM;
-	MainCanvas.fillStyle = "rgba(255,255,255,0.7)";
-	MainCanvas.textAlign = "right";
-	var hint = (CurrentLanguageTag == "CN") ? "点击继续" : "Click to continue";
-	MainCanvas.fillText(hint + "  (" + (C000_Intro_Intro_Page + 1) + "/" + pages.length + ")", UI_W - 80, UI_H - 30);
 }
 
+// Chapter 0 - Intro Click
 function C000_Intro_Intro_Click() {
-	var pages = C000_Intro_Intro_GetPages();
-	C000_Intro_Intro_Page++;
-	if (C000_Intro_Intro_Page >= pages.length)
+	TextPhase++;
+	if (TextPhase >= 9)
 		SetScene(CurrentChapter, "CreatePlayer");
-}
-
-function C000_Intro_Intro_KeyDown() {
-	if (KeyPress == 13 || KeyPress == 32) C000_Intro_Intro_Click();
 }
