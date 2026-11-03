@@ -1,29 +1,33 @@
 // C001_Day01 — Intake (join-kit rope)
 
 function C001_Day01_Intake_Load() {
-	StopTimer(9 * 60 * 60 * 1000);
 	LeaveIcon = "";
 	LeaveScreen = "";
+	TextPhase = 0;
+	if (typeof StopTimer === "function") StopTimer(9 * 60 * 60 * 1000);
+	if (typeof LoadText === "function") LoadText();
 	Common_BondageAllowed = false;
 	Common_SelfBondageAllowed = false;
 }
 
 function C001_Day01_Intake_Run() {
 	DrawImage(CurrentChapter + "/" + CurrentScreen + "/Background.jpg", 0, 0);
-	DrawTextInteraction();
+	DrawRect(40, 40, 900, 780, "rgba(18,10,24,0.55)");
+	var lines = ["Line1", "Line2", "Line3", "Line4", "Line5", "Line6", "Line7", "Line8"];
+	for (var i = 0; i < lines.length; i++) {
+		if (TextPhase >= i) {
+			var t = (typeof GetText === "function") ? GetText(lines[i]) : "";
+			if (!t || String(t).indexOf("MISSING") == 0) t = "";
+			if (t) DrawText(t, 490, 90 + i * 80, "White");
+		}
+	}
 }
 
 function C001_Day01_Intake_Click() {
-	if (MouseIn(0, 0, 1920, 1280)) {
-		if (typeof TextNext === "function") {
-			if (!TextNext()) {
-				C001_Day01_Intake_GiveRope();
-				SetScene(CurrentChapter, "Campus");
-			}
-		} else {
-			C001_Day01_Intake_GiveRope();
-			SetScene(CurrentChapter, "Campus");
-		}
+	TextPhase++;
+	if (TextPhase >= 8) {
+		C001_Day01_Intake_GiveRope();
+		SetScene(CurrentChapter, "Campus");
 	}
 }
 

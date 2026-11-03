@@ -1,7 +1,7 @@
 Key,Text
-1,Morning. The gates are open.
-2,You are the transfer. The academy already knows your name on paper.
-3,Weekend. Halls will stay quiet for one more day.
-4,Beyond the gate: brick, trees, and a path that leads to intake.
-5,You walk in.
-6,(Continue)
+Line1,Morning. The gates are open.
+Line2,You are the transfer. The academy already knows your name on paper.
+Line3,Weekend. Halls will stay quiet for one more day.
+Line4,Beyond the gate: brick, trees, and a path that leads to intake.
+Line5,You walk in.
+Line6,(Continue)
