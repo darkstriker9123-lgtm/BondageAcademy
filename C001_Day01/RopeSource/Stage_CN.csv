@@ -1,7 +1,4 @@
-Stage,LoveReq,SubReq,VarReq,Interaction,Result,NextStage,LoveMod,SubMod,Function
-0,0,0,,（再看一眼。）,训练用软绳。没有上锁。|告示写着指定区域允许练习。,0,0,0,
-0,0,0,,（拿走绳子。）,你从箱子里拿走两段软绳。,10,0,0,GetRope()
-0,0,0,,（先不拿。）,你退开一步。箱子还开着。,0,0,0,
-10,0,0,,（再拿一点。）,没有你还需要的了。两段够用。,20,0,0,
-10,0,0,,（离开。）,你收好绳子，走开。,20,0,0,
-20,0,0,,（离开。）,你走回小路上。,20,0,0,
+Stage,LoveReq,SubReq,VarReq,OptionText,Chat,NextStage,LoveMod,SubMod,Script
+0,0,0,,"多拿一卷。","你从箱子里拿起软绳。|练习发放。没人问。",20,0,0,"C001_Day01_RopeSource_GetRope()"
+0,0,0,,"算了。","你退后一步。|入门套件的绳子暂时够了。",20,0,0,
+20,0,0,,"（回校园）","小路还开着。",20,0,0,"SetScene(CurrentChapter, ""Campus"")"

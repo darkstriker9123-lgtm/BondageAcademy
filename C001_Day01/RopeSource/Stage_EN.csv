@@ -1,7 +1,4 @@
-Stage,LoveReq,SubReq,VarReq,Interaction,Result,NextStage,LoveMod,SubMod,Function
-0,0,0,,(Look closer.),"Training rope. Soft. Not locked away.|A note says designated practice is allowed.",0,0,0,
-0,0,0,,(Take the rope.),You take two lengths of soft rope from the case.,10,0,0,GetRope()
-0,0,0,,(Leave it.),You step back. The case stays open.,0,0,0,
-10,0,0,,(Take more.),There's nothing left that you need. Two lengths is enough.,20,0,0,
-10,0,0,,(Leave.),You pocket the rope and walk away.,20,0,0,
-20,0,0,,(Leave.),You step back onto the path.,20,0,0,
+Stage,LoveReq,SubReq,VarReq,OptionText,Chat,NextStage,LoveMod,SubMod,Script
+0,0,0,,"Take an extra coil.","You lift soft rope from the case.|Practice issue. No questions asked.",20,0,0,"C001_Day01_RopeSource_GetRope()"
+0,0,0,,"Leave it.","You step back.|The join-kit rope is enough for now.",20,0,0,
+20,0,0,,"(Return to campus.)","The path is still open.",20,0,0,"SetScene(CurrentChapter, ""Campus"")"

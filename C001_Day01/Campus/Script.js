@@ -1,10 +1,12 @@
 // C001_Day01 — Campus hub
-// Outro only after Sidney bind resolved
+// Zones: Notice | Rope case | Sidney | Dorm | End day (if bind done)
 
 var C001_Day01_Campus_StatusText = "";
 
 function C001_Day01_Campus_Load() {
-	StopTimer(10 * 60 * 60 * 1000);
+	CurrentActor = "";
+	if (typeof StopTimer === "function") StopTimer(10 * 60 * 60 * 1000);
+	if (typeof LoadText === "function") LoadText();
 	LeaveIcon = "";
 	LeaveScreen = "";
 	Common_BondageAllowed = true;
@@ -22,52 +24,84 @@ function C001_Day01_Campus_IsBindDone() {
 	return false;
 }
 
+function C001_Day01_Campus_DrawZone(x, y, w, h, label, hover) {
+	DrawRect(x, y, w, h, hover ? "rgba(200,80,120,0.35)" : "rgba(18,10,24,0.45)");
+	MainCanvas.strokeStyle = hover ? "rgba(255,180,200,0.8)" : "rgba(255,200,220,0.35)";
+	MainCanvas.lineWidth = 2;
+	MainCanvas.strokeRect(x, y, w, h);
+	MainCanvas.font = UI_FONT_SM;
+	MainCanvas.fillStyle = "#ffffff";
+	MainCanvas.textAlign = "center";
+	MainCanvas.textBaseline = "middle";
+	MainCanvas.fillText(label, x + w / 2, y + h / 2);
+}
+
 function C001_Day01_Campus_Run() {
 	DrawImage(CurrentChapter + "/" + CurrentScreen + "/Background.jpg", 0, 0);
 
-	if (C001_Day01_Campus_StatusText != "")
-		DrawText(C001_Day01_Campus_StatusText, 960, 1100, "White");
+	var cn = (typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN");
+	var z = [
+		{ x: 80, y: 180, w: 360, h: 140, label: cn ? "公告板" : "Notice board", id: "notice" },
+		{ x: 480, y: 520, w: 360, h: 160, label: cn ? "练习绳箱" : "Rope case", id: "rope" },
+		{ x: 1100, y: 160, w: 480, h: 720, label: cn ? "小径 · Sidney" : "Path · Sidney", id: "sidney" },
+		{ x: 1620, y: 420, w: 260, h: 280, label: cn ? "宿舍" : "Dorm", id: "dorm" }
+	];
+	if (C001_Day01_Campus_IsBindDone()) {
+		z.push({ x: 700, y: UI_TOP_H + 20, w: 520, h: 90, label: cn ? "结束这一天" : "End the day", id: "outro" });
+	}
 
-	if (C001_Day01_Campus_IsBindDone())
-		DrawText(GetText("OutroReady"), 960, 1180, "White");
+	for (var i = 0; i < z.length; i++) {
+		var hov = (MouseX >= z[i].x && MouseX <= z[i].x + z[i].w && MouseY >= z[i].y && MouseY <= z[i].y + z[i].h);
+		C001_Day01_Campus_DrawZone(z[i].x, z[i].y, z[i].w, z[i].h, z[i].label, hov);
+	}
+
+	if (C001_Day01_Campus_StatusText != "") {
+		DrawRect(200, 1080, 1520, 80, "rgba(18,10,24,0.7)");
+		MainCanvas.font = UI_FONT_SM;
+		MainCanvas.fillStyle = "#ffffff";
+		MainCanvas.textAlign = "center";
+		MainCanvas.textBaseline = "middle";
+		MainCanvas.fillText(C001_Day01_Campus_StatusText, 960, 1120);
+	}
+
+	if (!C001_Day01_Campus_IsBindDone()) {
+		MainCanvas.font = "24px Arial";
+		MainCanvas.fillStyle = "rgba(255,255,255,0.85)";
+		MainCanvas.textAlign = "center";
+		MainCanvas.fillText(cn ? "先去小径见 Sidney。" : "Meet Sidney on the path first.", 960, 1240);
+	}
 }
 
 function C001_Day01_Campus_Click() {
-	InventoryClick(GetClickedInventory(), CurrentChapter, "Campus");
+	if (typeof InventoryClick === "function")
+		InventoryClick(GetClickedInventory(), CurrentChapter, "Campus");
 
-	// Notice (left)
-	if ((MouseX >= 80) && (MouseX <= 420) && (MouseY >= 200) && (MouseY <= 720)) {
+	// Notice
+	if (MouseX >= 80 && MouseX <= 440 && MouseY >= 180 && MouseY <= 320) {
 		C001_Day01_Campus_StatusText = GetText("Notice");
 		return;
 	}
-
-	// Rope case (center) optional
-	if ((MouseX >= 480) && (MouseX <= 820) && (MouseY >= 520) && (MouseY <= 900)) {
-		C001_Day01_Campus_StatusText = GetText("RopeCase");
+	// Rope case → RopeSource screen
+	if (MouseX >= 480 && MouseX <= 840 && MouseY >= 520 && MouseY <= 680) {
+		C001_Day01_Campus_StatusText = "";
+		SetScene(CurrentChapter, "RopeSource");
 		return;
 	}
-
-	// Sidney path (right)
-	if ((MouseX >= 1100) && (MouseX <= 1600) && (MouseY >= 120) && (MouseY <= 980)) {
+	// Sidney
+	if (MouseX >= 1100 && MouseX <= 1580 && MouseY >= 160 && MouseY <= 880) {
 		C001_Day01_Campus_StatusText = "";
 		SetScene(CurrentChapter, "Sidney");
 		return;
 	}
-
-	// Dorm (far)
-	if ((MouseX >= 1620) && (MouseX <= 1900) && (MouseY >= 400) && (MouseY <= 900)) {
+	// Dorm
+	if (MouseX >= 1620 && MouseX <= 1880 && MouseY >= 420 && MouseY <= 700) {
 		C001_Day01_Campus_StatusText = GetText("DormPath");
 		return;
 	}
-
-	// Outro (top) if bind done
-	if ((MouseX >= 700) && (MouseX <= 1220) && (MouseY >= 40) && (MouseY <= 160)) {
-		if (C001_Day01_Campus_IsBindDone()) {
-			C001_Day01_Campus_StatusText = "";
-			SetScene(CurrentChapter, "Outro");
-		} else {
-			C001_Day01_Campus_StatusText = GetText("OutroBlocked");
-		}
+	// Outro
+	if (C001_Day01_Campus_IsBindDone() && MouseX >= 700 && MouseX <= 1220 && MouseY >= UI_TOP_H + 20 && MouseY <= UI_TOP_H + 110) {
+		C001_Day01_Campus_StatusText = "";
+		SetScene(CurrentChapter, "Outro");
 		return;
 	}
 }

@@ -1,5 +1,5 @@
 // C001_Day01 — Sidney
-// Compulsory bind (either direction) · untie available · untie clears Day2 revenge
+// Compulsory bind (either direction). Untie clears Day2 revenge flag.
 
 var C001_Day01_Sidney_CurrentStage = 0;
 var C001_Day01_Sidney_BindResolved = false;
@@ -7,20 +7,16 @@ var C001_Day01_Sidney_PlayerBoundHer = false;
 var C001_Day01_Sidney_SheBoundPlayer = false;
 var C001_Day01_Sidney_UntiedHer = false;
 var C001_Day01_Sidney_PlayerReleased = false;
-var C001_Day01_Sidney_PlayerHasRope = false;
 
 function C001_Day01_Sidney_Load() {
-
 	ActorLoad("Sidney", "Campus");
 	LeaveIcon = "Leave";
 	LeaveScreen = "Campus";
 	Common_BondageAllowed = true;
 	Common_SelfBondageAllowed = false;
+	if (typeof LoadInteractions === "function") LoadInteractions();
 
-	C001_Day01_Sidney_PlayerHasRope = PlayerHasInventory("Rope");
-
-	LoadInteractions();
-
+	// Resume correct branch
 	if (C001_Day01_Sidney_BindResolved) {
 		if (C001_Day01_Sidney_PlayerBoundHer && !C001_Day01_Sidney_UntiedHer)
 			C001_Day01_Sidney_CurrentStage = 100;
@@ -32,8 +28,11 @@ function C001_Day01_Sidney_Load() {
 		C001_Day01_Sidney_CurrentStage = 200;
 	} else if (typeof ActorHasInventory === "function" && ActorHasInventory("Rope")) {
 		C001_Day01_Sidney_CurrentStage = 100;
+	} else {
+		// keep existing stage if mid-talk, else start
+		if (typeof C001_Day01_Sidney_CurrentStage !== "number")
+			C001_Day01_Sidney_CurrentStage = 0;
 	}
-
 }
 
 function C001_Day01_Sidney_Run() {
@@ -42,7 +41,18 @@ function C001_Day01_Sidney_Run() {
 
 function C001_Day01_Sidney_Click() {
 	ClickInteraction(C001_Day01_Sidney_CurrentStage);
-	InventoryClick(GetClickedInventory(), CurrentChapter, "Sidney");
+	if (typeof InventoryClick === "function")
+		InventoryClick(GetClickedInventory(), CurrentChapter, "Sidney");
+
+	// Using rope from inventory on Sidney (before resolved) → bind her path
+	if (!C001_Day01_Sidney_BindResolved &&
+		typeof GetClickedInventory === "function" &&
+		GetClickedInventory() == "Rope" &&
+		C001_Day01_Sidney_CurrentStage < 100) {
+		C001_Day01_Sidney_BindSidney();
+		C001_Day01_Sidney_CurrentStage = 100;
+		OverridenIntroText = "The rope settles. She tests it once.";
+	}
 }
 
 function C001_Day01_Sidney_MarkResolved() {
@@ -54,16 +64,17 @@ function C001_Day01_Sidney_MarkResolved() {
 }
 
 function C001_Day01_Sidney_BindSidney() {
-	if (PlayerHasInventory("Rope")) {
-		PlayerRemoveInventory("Rope", 1);
-		ActorAddInventory("Rope");
-	} else {
-		ActorAddInventory("Rope");
+	if (typeof PlayerHasInventory === "function" && PlayerHasInventory("Rope")) {
+		if (typeof PlayerRemoveInventory === "function")
+			PlayerRemoveInventory("Rope", 1);
 	}
+	if (typeof ActorAddInventory === "function")
+		ActorAddInventory("Rope");
 	C001_Day01_Sidney_PlayerBoundHer = true;
 	C001_Day01_Sidney_SheBoundPlayer = false;
 	C001_Day01_Sidney_MarkResolved();
-	ActorChangeAttitude(0, 1);
+	if (typeof ActorChangeAttitude === "function")
+		ActorChangeAttitude(0, 1);
 	if (typeof GameLogSpecificAdd === "function")
 		GameLogSpecificAdd(CurrentChapter, "Sidney", "PlayerBoundSidneyDay1");
 	if (typeof GameLogAdd === "function")
@@ -71,25 +82,26 @@ function C001_Day01_Sidney_BindSidney() {
 }
 
 function C001_Day01_Sidney_BindPlayer() {
-	if (PlayerHasInventory("Rope"))
-		PlayerRemoveInventory("Rope", 1);
+	if (typeof PlayerHasInventory === "function" && PlayerHasInventory("Rope")) {
+		if (typeof PlayerRemoveInventory === "function")
+			PlayerRemoveInventory("Rope", 1);
+	}
 	if (typeof PlayerLockInventory === "function")
 		PlayerLockInventory("Rope");
-	else if (typeof Common_PlayerRestrained !== "undefined")
-		Common_PlayerRestrained = true;
 	C001_Day01_Sidney_SheBoundPlayer = true;
 	C001_Day01_Sidney_PlayerBoundHer = false;
 	C001_Day01_Sidney_MarkResolved();
-	ActorChangeAttitude(0, -1);
+	if (typeof ActorChangeAttitude === "function")
+		ActorChangeAttitude(0, -1);
 	if (typeof GameLogSpecificAdd === "function")
 		GameLogSpecificAdd(CurrentChapter, "Sidney", "SidneyBoundPlayerDay1");
 	if (typeof GameLogAdd === "function")
 		GameLogAdd("SidneyBoundPlayerDay1");
 }
 
-// Untie Sidney — no revenge on Day 2; you can still meet her
 function C001_Day01_Sidney_UntieSidney() {
-	ActorRemoveInventory("Rope");
+	if (typeof ActorRemoveInventory === "function")
+		ActorRemoveInventory("Rope");
 	if (typeof PlayerAddInventory === "function" && !PlayerHasInventory("Rope"))
 		PlayerAddInventory("Rope", 1);
 	C001_Day01_Sidney_UntiedHer = true;
@@ -106,8 +118,6 @@ function C001_Day01_Sidney_UntieSidney() {
 function C001_Day01_Sidney_ReleasePlayer() {
 	if (typeof PlayerUnlockInventory === "function")
 		PlayerUnlockInventory("Rope");
-	else if (typeof Common_PlayerRestrained !== "undefined")
-		Common_PlayerRestrained = false;
 	if (typeof PlayerAddInventory === "function" && !PlayerHasInventory("Rope"))
 		PlayerAddInventory("Rope", 1);
 	C001_Day01_Sidney_PlayerReleased = true;
@@ -117,7 +127,6 @@ function C001_Day01_Sidney_ReleasePlayer() {
 		GameLogAdd("ReleasedPlayerDay1");
 }
 
-// Leave her still bound → revenge available on Day 2
 function C001_Day01_Sidney_LeaveBoundFlag() {
 	if (C001_Day01_Sidney_PlayerBoundHer && !C001_Day01_Sidney_UntiedHer) {
 		if (typeof GameLogSpecificAdd === "function")

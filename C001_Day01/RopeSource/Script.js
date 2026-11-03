@@ -1,36 +1,37 @@
+// C001_Day01 — RopeSource (optional extra practice rope)
+
 var C001_Day01_RopeSource_CurrentStage = 0;
 var C001_Day01_RopeSource_GotRope = false;
 
-// Chapter 1 - Day 01 RopeSource Load
 function C001_Day01_RopeSource_Load() {
-
 	LeaveIcon = "Leave";
 	LeaveScreen = "Campus";
-	LoadInteractions();
-
-	// Already took rope this day
-	if (C001_Day01_RopeSource_GotRope || PlayerHasInventory("Rope"))
+	CurrentActor = "";
+	if (typeof LoadInteractions === "function") LoadInteractions();
+	if (C001_Day01_RopeSource_GotRope || (typeof PlayerHasInventory === "function" && PlayerHasInventory("Rope") && C001_Day01_RopeSource_GotRope))
+		C001_Day01_RopeSource_CurrentStage = 20;
+	else if (C001_Day01_RopeSource_GotRope)
 		C001_Day01_RopeSource_CurrentStage = 20;
 	else
 		C001_Day01_RopeSource_CurrentStage = 0;
-
 }
 
-// Chapter 1 - Day 01 RopeSource Run
 function C001_Day01_RopeSource_Run() {
 	BuildInteraction(C001_Day01_RopeSource_CurrentStage);
 }
 
-// Chapter 1 - Day 01 RopeSource Click
 function C001_Day01_RopeSource_Click() {
 	ClickInteraction(C001_Day01_RopeSource_CurrentStage);
-	InventoryClick(GetClickedInventory(), CurrentChapter, "RopeSource");
+	if (typeof InventoryClick === "function")
+		InventoryClick(GetClickedInventory(), CurrentChapter, "RopeSource");
 }
 
-// Take soft rope from the practice case
 function C001_Day01_RopeSource_GetRope() {
-	PlayerAddInventory("Rope", 2);
+	if (typeof PlayerAddInventory === "function")
+		PlayerAddInventory("Rope", 1);
 	C001_Day01_RopeSource_GotRope = true;
 	if (typeof GameLogSpecificAdd === "function")
 		GameLogSpecificAdd(CurrentChapter, "", "TookPracticeRope");
+	if (typeof GameLogAdd === "function")
+		GameLogAdd("TookPracticeRope");
 }
