@@ -4,9 +4,9 @@ var C000_Intro_ChapterSelect_CreditMode = false;
 
 var CS_BTN_X = 80;
 var CS_BTN_W = 440;
-var CS_BTN_H = 78;
-var CS_BTN_TOP = 380;
-var CS_BTN_GAP = 18;
+var CS_BTN_H = 70;
+var CS_BTN_TOP = 320;
+var CS_BTN_GAP = 14;
 
 function C000_Intro_ChapterSelect_Load() {
 	LeaveIcon = "";
@@ -28,7 +28,17 @@ function C000_Intro_ChapterSelect_GetButtons() {
 		];
 	}
 	return [
-		{ label: cn ? "新游戏" : "New Game", action: function () { SetScene("C000_Intro", "Intro"); } },
+		{ label: cn ? "新游戏" : "New Game", action: function () {
+			if (typeof ResetGameState === "function") ResetGameState();
+			SetScene("C000_Intro", "Intro");
+		} },
+		{ label: cn ? "读取" : "Load Game", action: function () {
+			if (typeof SetScene === "function") SetScene("C999_Common", "GameLoad");
+		} },
+		{ label: cn ? "保存" : "Save Game", action: function () {
+			if (typeof SaveMenu === "function") SaveMenu("C000_Intro", "ChapterSelect");
+			else if (typeof SetScene === "function") SetScene("C999_Common", "GameSave");
+		} },
 		{ label: cn ? "语言" : "Language", action: function () { C000_Intro_ChapterSelect_CurrentStage = 30; } },
 		{ label: cn ? "制作人员" : "Credits", action: function () { C000_Intro_ChapterSelect_CreditMode = true; } }
 	];

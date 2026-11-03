@@ -170,6 +170,8 @@ function C000_Intro_CreatePlayer_Run() {
 }
 
 function C000_Intro_CreatePlayer_Validate() {
+	if (typeof ResetGameState === "function") ResetGameState();
+
 	var input = document.getElementById("InputName");
 	var select = document.getElementById("SelectSkill");
 	if (!input || !select) return;

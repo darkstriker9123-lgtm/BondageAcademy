@@ -5,8 +5,8 @@
 var UI_W = 1920;
 var UI_H = 1280;
 var UI_TOP_H = 100;
-var UI_BOTTOM_Y = 1080;
-var UI_BOTTOM_H = 200;
+var UI_BOTTOM_Y = 1120;
+var UI_BOTTOM_H = 160;
 var UI_ICON = 90;
 var UI_OPT_X = 1420;
 var UI_OPT_W = 480;
@@ -268,9 +268,36 @@ function DrawActorStatsBar() {
 	MainCanvas.fillText(ActorGetValue(ActorBondageCount).toString(), panelX + 90, y);
 }
 
+function DrawWrappedLines(text, x, y, maxW, lineH, color) {
+	MainCanvas.fillStyle = color || "#ffffff";
+	MainCanvas.textAlign = "left";
+	MainCanvas.textBaseline = "top";
+	var parts = String(text).split("|");
+	var cy = y;
+	for (var pi = 0; pi < parts.length; pi++) {
+		var words = parts[pi].split(" ");
+		var line = "";
+		for (var wi = 0; wi < words.length; wi++) {
+			var test = line ? (line + " " + words[wi]) : words[wi];
+			if (MainCanvas.measureText(test).width > maxW && line) {
+				MainCanvas.fillText(line, x, cy);
+				cy += lineH;
+				line = words[wi];
+			} else line = test;
+		}
+		if (line) {
+			MainCanvas.fillText(line, x, cy);
+			cy += lineH;
+		}
+		if (pi < parts.length - 1) cy += Math.floor(lineH * 0.25);
+	}
+	return cy;
+}
+
 function DrawIntro(Intro, CurrentStagePosition, LoveLevel, SubLevel) {
-	DrawRect(0, UI_BOTTOM_Y, UI_W, UI_BOTTOM_H, "rgba(255,255,255,0.92)");
-	DrawRect(0, UI_BOTTOM_Y, UI_W, 2, "black");
+	// Transparent dialogue panel (characters can sit lower / show through)
+	DrawRect(0, UI_BOTTOM_Y, UI_W, UI_BOTTOM_H, "rgba(12,8,18,0.38)");
+	DrawRect(0, UI_BOTTOM_Y, UI_W, 2, "rgba(255,200,220,0.25)");
 	var ShowText = "";
 	if (OverridenIntroText != "")
 		ShowText = OverridenIntroText;
@@ -279,16 +306,8 @@ function DrawIntro(Intro, CurrentStagePosition, LoveLevel, SubLevel) {
 			if (Intro[I][IntroStage] == CurrentStagePosition)
 				if (ActorInteractionAvailable(Intro[I][IntroLoveReq], Intro[I][IntroSubReq], Intro[I][IntroVarReq], Intro[I][IntroText], true))
 					ShowText = Intro[I][IntroText];
-	MainCanvas.font = UI_FONT;
-	MainCanvas.fillStyle = "black";
-	MainCanvas.textAlign = "left";
-	MainCanvas.textBaseline = "middle";
-	if (ShowText.indexOf("|") == -1)
-		MainCanvas.fillText(ShowText, 40, UI_BOTTOM_Y + UI_BOTTOM_H / 2);
-	else {
-		MainCanvas.fillText(ShowText.substring(0, ShowText.indexOf("|")), 40, UI_BOTTOM_Y + UI_BOTTOM_H / 2 - 28);
-		MainCanvas.fillText(ShowText.substring(ShowText.indexOf("|") + 1, 1000), 40, UI_BOTTOM_Y + UI_BOTTOM_H / 2 + 28);
-	}
+	MainCanvas.font = UI_FONT_SM;
+	DrawWrappedLines(ShowText, 40, UI_BOTTOM_Y + 16, 1180, 34, "#ffffff");
 	DrawActorStatsBar();
 }
 
@@ -296,16 +315,37 @@ function DrawOption(OptionText, Index) {
 	if (OptionText.substr(0, 1) == "@") OptionText = OptionText.substr(1);
 	var Left = UI_OPT_X;
 	var Top = UI_OPT_TOP + Index * (UI_OPT_H + UI_OPT_GAP);
-	DrawRect(Left, Top, UI_OPT_W, UI_OPT_H, "rgba(20,20,20,0.35)");
+	DrawRect(Left, Top, UI_OPT_W, UI_OPT_H, "rgba(12,8,18,0.45)");
 	MainCanvas.strokeStyle = "rgba(255,255,255,0.25)";
 	MainCanvas.lineWidth = 2;
 	MainCanvas.strokeRect(Left, Top, UI_OPT_W, UI_OPT_H);
 	var hover = (MouseX >= Left) && (MouseX <= Left + UI_OPT_W) && (MouseY >= Top) && (MouseY <= Top + UI_OPT_H) && !IsMobile;
-	MainCanvas.font = UI_FONT_SM;
+	MainCanvas.font = "24px Arial";
 	MainCanvas.textAlign = "center";
 	MainCanvas.textBaseline = "middle";
 	MainCanvas.fillStyle = hover ? "#7CFF7C" : "#FFFFFF";
-	MainCanvas.fillText(OptionText, Left + UI_OPT_W / 2, Top + UI_OPT_H / 2);
+	var maxW = UI_OPT_W - 28;
+	if (MainCanvas.measureText(OptionText).width <= maxW) {
+		MainCanvas.fillText(OptionText, Left + UI_OPT_W / 2, Top + UI_OPT_H / 2);
+	} else {
+		var words = OptionText.split(" ");
+		var l1 = "", l2 = "";
+		for (var wi = 0; wi < words.length; wi++) {
+			var test = l1 ? (l1 + " " + words[wi]) : words[wi];
+			if (MainCanvas.measureText(test).width > maxW && l1) {
+				l2 = words.slice(wi).join(" ");
+				break;
+			}
+			l1 = test;
+		}
+		if (!l2) l2 = "";
+		if (MainCanvas.measureText(l2).width > maxW) {
+			while (l2.length > 3 && MainCanvas.measureText(l2 + "…").width > maxW) l2 = l2.slice(0, -1);
+			l2 = l2 + "…";
+		}
+		MainCanvas.fillText(l1, Left + UI_OPT_W / 2, Top + UI_OPT_H / 2 - 16);
+		MainCanvas.fillText(l2, Left + UI_OPT_W / 2, Top + UI_OPT_H / 2 + 16);
+	}
 }
 
 function GetAvailableOptions(Stage, CurrentStagePosition) {
@@ -352,20 +392,34 @@ function FindImage(Intro, CurrentStagePosition) {
 	return ImageName;
 }
 
+function BuildInteractionFindBackground() {
+	var base = CurrentChapter + "/" + CurrentScreen + "/";
+	var candidates = [
+		base + "Background.jpg",
+		base + "Background.png",
+		base + "CaseOpen.jpg",
+		base + "CaseOpen.png"
+	];
+	for (var i = 0; i < candidates.length; i++) {
+		var img = DrawGetImage(candidates[i]);
+		if (DrawImageReady(img)) return candidates[i];
+	}
+	return candidates[0];
+}
+
 function BuildInteraction(CurrentStagePosition) {
 	if ((CurrentIntro != null) && (CurrentStage != null)) {
 		// Always clear so previous screen never bleeds through
 		DrawRect(0, 0, UI_W, UI_H, "#1a1220");
-		// Scene background (full screen)
-		var bg = CurrentChapter + "/" + CurrentScreen + "/Background.jpg";
-		DrawImage(bg, 0, 0);
+		// Scene background (full screen) — try several filenames
+		DrawImage(BuildInteractionFindBackground(), 0, 0);
 		var ImageName = FindImage(CurrentIntro, CurrentStagePosition);
 		var drewPose = false;
 		if ((ImageName !== undefined) && (ImageName != null) && (String(ImageName).trim() != "")) {
 			var poseSrc = CurrentChapter + "/" + CurrentScreen + "/" + String(ImageName).trim();
 			var poseImg = DrawGetImage(poseSrc);
 			if (DrawImageReady(poseImg)) {
-				// Ground-align: feet sit on top of dialogue bar
+				// Ground-align: feet sit near bottom (dialogue is transparent)
 				DrawActorPoseGrounded(poseImg, 40);
 				drewPose = true;
 			}
@@ -380,18 +434,49 @@ function BuildInteraction(CurrentStagePosition) {
 // Draw a character pose image with feet on the dialogue-bar line
 function DrawActorPoseGrounded(img, leftX) {
 	if (!DrawImageReady(img)) return;
-	var maxH = UI_BOTTOM_Y - UI_TOP_H;
-	var maxW = 700;
-	var scale = Math.min(maxH / img.naturalHeight, maxW / img.naturalWidth, 1.25);
+	// Allow feet deeper into transparent dialogue area
+	var groundY = UI_H - 24;
+	var maxH = groundY - UI_TOP_H;
+	var maxW = 720;
+	var scale = Math.min(maxH / img.naturalHeight, maxW / img.naturalWidth, 1.35);
 	if (scale <= 0) scale = 1;
 	var dw = img.naturalWidth * scale;
 	var dh = img.naturalHeight * scale;
 	var x = (leftX != null) ? leftX : 40;
-	var y = UI_BOTTOM_Y - dh;
+	var y = groundY - dh;
 	if (y < UI_TOP_H) y = UI_TOP_H;
 	try {
 		MainCanvas.drawImage(img, x, y, dw, dh);
 	} catch (e) {}
+}
+
+// Second character (e.g. Player) grounded on the right side of the scene
+function DrawActorPoseGroundedAt(img, leftX, maxW) {
+	if (!DrawImageReady(img)) return;
+	var groundY = UI_H - 24;
+	var maxH = groundY - UI_TOP_H;
+	if (maxW == null) maxW = 620;
+	var scale = Math.min(maxH / img.naturalHeight, maxW / img.naturalWidth, 1.3);
+	if (scale <= 0) scale = 1;
+	var dw = img.naturalWidth * scale;
+	var dh = img.naturalHeight * scale;
+	var x = (leftX != null) ? leftX : 900;
+	var y = groundY - dh;
+	if (y < UI_TOP_H) y = UI_TOP_H;
+	try {
+		MainCanvas.drawImage(img, x, y, dw, dh);
+	} catch (e) {}
+}
+
+function DrawTryPosePaths(paths, leftX) {
+	for (var i = 0; i < paths.length; i++) {
+		var img = DrawGetImage(paths[i]);
+		if (DrawImageReady(img)) {
+			DrawActorPoseGroundedAt(img, leftX);
+			return true;
+		}
+	}
+	return false;
 }
 
 function GetPlayerIconImage() {

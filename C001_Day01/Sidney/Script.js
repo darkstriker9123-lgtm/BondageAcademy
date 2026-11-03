@@ -1,5 +1,6 @@
 // C001_Day01 — Sidney
-// Compulsory bind (either direction). Untie clears Day2 revenge flag.
+// Compulsory bind (either direction). Untie → NoRevengeDay2.
+// After scene fully done, re-entry only shows residual (no full restart).
 
 var C001_Day01_Sidney_CurrentStage = 0;
 var C001_Day01_Sidney_BindResolved = false;
@@ -7,6 +8,7 @@ var C001_Day01_Sidney_PlayerBoundHer = false;
 var C001_Day01_Sidney_SheBoundPlayer = false;
 var C001_Day01_Sidney_UntiedHer = false;
 var C001_Day01_Sidney_PlayerReleased = false;
+var C001_Day01_Sidney_Done = false;
 
 function C001_Day01_Sidney_Load() {
 	ActorLoad("Sidney", "Campus");
@@ -16,7 +18,11 @@ function C001_Day01_Sidney_Load() {
 	Common_SelfBondageAllowed = false;
 	if (typeof LoadInteractions === "function") LoadInteractions();
 
-	// Resume correct branch
+	if (C001_Day01_Sidney_Done) {
+		C001_Day01_Sidney_CurrentStage = 310;
+		return;
+	}
+
 	if (C001_Day01_Sidney_BindResolved) {
 		if (C001_Day01_Sidney_PlayerBoundHer && !C001_Day01_Sidney_UntiedHer)
 			C001_Day01_Sidney_CurrentStage = 100;
@@ -28,15 +34,50 @@ function C001_Day01_Sidney_Load() {
 		C001_Day01_Sidney_CurrentStage = 200;
 	} else if (typeof ActorHasInventory === "function" && ActorHasInventory("Rope")) {
 		C001_Day01_Sidney_CurrentStage = 100;
-	} else {
-		// keep existing stage if mid-talk, else start
-		if (typeof C001_Day01_Sidney_CurrentStage !== "number")
-			C001_Day01_Sidney_CurrentStage = 0;
+	} else if (typeof C001_Day01_Sidney_CurrentStage !== "number") {
+		C001_Day01_Sidney_CurrentStage = 0;
 	}
+}
+
+function C001_Day01_Sidney_DrawPlayer() {
+	// Pick player pose for current beat
+	var key = "Normal";
+	if (C001_Day01_Sidney_SheBoundPlayer && !C001_Day01_Sidney_PlayerReleased)
+		key = "Bound";
+	else if (C001_Day01_Sidney_CurrentStage >= 20 && C001_Day01_Sidney_CurrentStage < 100 &&
+		typeof PlayerHasInventory === "function" && PlayerHasInventory("Rope"))
+		key = "RopeReady";
+
+	var paths = [];
+	if (key == "Bound") {
+		paths = [
+			"C001_Day01/Sidney/Player_Bound.png",
+			"C001_Day01/Sidney/Player_Bound.jpg",
+			"Actors/Player/Player_Bound.png",
+			"Actors/PlayerTransition/Player08.png"
+		];
+	} else if (key == "RopeReady") {
+		paths = [
+			"C001_Day01/Sidney/Player_RopeReady.png",
+			"C001_Day01/Sidney/Player_RopeReady.jpg",
+			"Actors/Player/Player_RopeReady.png",
+			"Actors/PlayerTransition/Player01.png"
+		];
+	} else {
+		paths = [
+			"C001_Day01/Sidney/Player_Normal.png",
+			"C001_Day01/Sidney/Player_Normal.jpg",
+			"Actors/Player/Player_Normal.png",
+			"Actors/PlayerTransition/Player01.png"
+		];
+	}
+	if (typeof DrawTryPosePaths === "function")
+		DrawTryPosePaths(paths, 980);
 }
 
 function C001_Day01_Sidney_Run() {
 	BuildInteraction(C001_Day01_Sidney_CurrentStage);
+	C001_Day01_Sidney_DrawPlayer();
 }
 
 function C001_Day01_Sidney_Click() {
@@ -44,7 +85,6 @@ function C001_Day01_Sidney_Click() {
 	if (typeof InventoryClick === "function")
 		InventoryClick(GetClickedInventory(), CurrentChapter, "Sidney");
 
-	// Using rope from inventory on Sidney (before resolved) → bind her path
 	if (!C001_Day01_Sidney_BindResolved &&
 		typeof GetClickedInventory === "function" &&
 		GetClickedInventory() == "Rope" &&
@@ -134,4 +174,16 @@ function C001_Day01_Sidney_LeaveBoundFlag() {
 		if (typeof GameLogAdd === "function")
 			GameLogAdd("LeftSidneyBoundDay1");
 	}
+}
+
+function C001_Day01_Sidney_FinishScene() {
+	C001_Day01_Sidney_Done = true;
+	C001_Day01_Sidney_CurrentStage = 310;
+	if (typeof GameLogAdd === "function")
+		GameLogAdd("SidneySceneDoneDay1");
+}
+
+function C001_Day01_Sidney_LeaveToCampus() {
+	C001_Day01_Sidney_FinishScene();
+	SetScene(CurrentChapter, "Campus");
 }

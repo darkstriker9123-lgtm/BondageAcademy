@@ -29,5 +29,5 @@ Stage,LoveReq,SubReq,VarReq,OptionText,Chat,NextStage,LoveMod,SubMod,Script
 300,0,0,,"So that's day one.","That's day one.|(Rubs a wrist or watches yours.) Weekend isn't over.",310,0,0,
 300,0,0,,"Will I see you tomorrow?","You will.|(Certain.) Whether I'm kind depends on how you left things.",310,0,0,
 300,0,0,,"I won't forget this.","Good.|(Almost soft.) Neither will I.",310,1,0,
-310,0,0,,"(Head back to campus.)","She doesn't follow.|Go.",310,0,0,"SetScene(CurrentChapter, ""Campus"")"
-310,0,0,,"…Take care.","You first, transfer.|(Turns away first or lets you.)",310,1,0,"SetScene(CurrentChapter, ""Campus"")"
+310,0,0,,"(Head back to campus.)","She doesn't follow.|Go.",310,0,0,"C001_Day01_Sidney_LeaveToCampus()"
+310,0,0,,"…Take care.","You first, transfer.|(Turns away first or lets you.)",310,1,0,"C001_Day01_Sidney_LeaveToCampus()"

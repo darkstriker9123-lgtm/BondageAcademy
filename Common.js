@@ -371,3 +371,85 @@ function LeaveButtonClick() {
 function GetPath(FileName) {
 	return CurrentChapter + "/" + CurrentScreen + "/" + FileName;
 }
+
+// Full reset for New Game (Bondage Academy)
+function ResetGameState() {
+	try {
+		// Core player
+		if (typeof PlayerInventory !== "undefined") PlayerInventory = [];
+		if (typeof PlayerLockedInventory !== "undefined") PlayerLockedInventory = [];
+		if (typeof PlayerSkill !== "undefined") PlayerSkill = [];
+		Common_PlayerName = "";
+		Common_PlayerOwner = "";
+		Common_PlayerLover = "";
+		Common_PlayerRestrained = false;
+		Common_PlayerGagged = false;
+		Common_PlayerBlinded = false;
+		Common_PlayerChaste = false;
+		Common_PlayerNotRestrained = true;
+		Common_PlayerNotGagged = true;
+		Common_PlayerNotBlinded = true;
+		Common_PlayerClothed = true;
+		Common_PlayerUnderwear = false;
+		Common_PlayerNaked = false;
+		Common_PlayerCloth = "";
+		Common_PlayerCostume = "";
+		Common_PlayerPose = "";
+		Common_PlayerSedated = false;
+		Common_PlayerOwned = false;
+		Common_PlayerBroken = false;
+		Common_PlayerForSale = false;
+		Common_PlayerInCage = false;
+		Common_PlayerEscaped = false;
+		Common_BondageAllowed = true;
+		Common_SelfBondageAllowed = true;
+
+		// Actors + log
+		if (typeof Actor !== "undefined") Actor = [];
+		if (typeof GameLog !== "undefined") GameLog = [];
+		CurrentActor = "";
+
+		// Time / day
+		if (typeof CurrentDay !== "undefined") CurrentDay = 1;
+		if (typeof CurrentTime !== "undefined") CurrentTime = 8 * 60 * 60 * 1000;
+
+		// Day 01 chapter locals
+		var d1 = [
+			"C001_Day01_Sidney_CurrentStage",
+			"C001_Day01_Sidney_BindResolved",
+			"C001_Day01_Sidney_PlayerBoundHer",
+			"C001_Day01_Sidney_SheBoundPlayer",
+			"C001_Day01_Sidney_UntiedHer",
+			"C001_Day01_Sidney_PlayerReleased",
+			"C001_Day01_Sidney_Done",
+			"C001_Day01_RopeSource_CurrentStage",
+			"C001_Day01_RopeSource_GotRope",
+			"C001_Day01_Campus_StatusText",
+			"C001_Day01_Intro_TextPhase",
+			"C001_Day01_Intake_TextPhase",
+			"C001_Day01_Outro_TextPhase"
+		];
+		for (var i = 0; i < d1.length; i++) {
+			if (typeof window[d1[i]] !== "undefined") {
+				if (typeof window[d1[i]] === "boolean") window[d1[i]] = false;
+				else if (typeof window[d1[i]] === "number") window[d1[i]] = 0;
+				else if (typeof window[d1[i]] === "string") window[d1[i]] = "";
+			}
+		}
+		// Explicit booleans / numbers for Day01 Sidney
+		if (typeof C001_Day01_Sidney_BindResolved !== "undefined") C001_Day01_Sidney_BindResolved = false;
+		if (typeof C001_Day01_Sidney_PlayerBoundHer !== "undefined") C001_Day01_Sidney_PlayerBoundHer = false;
+		if (typeof C001_Day01_Sidney_SheBoundPlayer !== "undefined") C001_Day01_Sidney_SheBoundPlayer = false;
+		if (typeof C001_Day01_Sidney_UntiedHer !== "undefined") C001_Day01_Sidney_UntiedHer = false;
+		if (typeof C001_Day01_Sidney_PlayerReleased !== "undefined") C001_Day01_Sidney_PlayerReleased = false;
+		if (typeof C001_Day01_Sidney_Done !== "undefined") C001_Day01_Sidney_Done = false;
+		if (typeof C001_Day01_Sidney_CurrentStage !== "undefined") C001_Day01_Sidney_CurrentStage = 0;
+		if (typeof C001_Day01_RopeSource_GotRope !== "undefined") C001_Day01_RopeSource_GotRope = false;
+		if (typeof C001_Day01_RopeSource_CurrentStage !== "undefined") C001_Day01_RopeSource_CurrentStage = 0;
+
+		if (typeof LoadRestrainStatus === "function") LoadRestrainStatus();
+		if (typeof PlayerTransitionFrame !== "undefined") PlayerTransitionFrame = 1;
+	} catch (e) {
+		console.log("ResetGameState error", e);
+	}
+}
