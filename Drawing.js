@@ -100,6 +100,12 @@ function DrawText(Text, X, Y, Color) {
 	}
 }
 
+
+// Safe stub: some early chapter scripts called this; engine uses TextPhase + DrawText instead
+function DrawTextInteraction() {
+	// no-op fallback — prefer explicit TextPhase drawing in chapter scripts
+}
+
 function DrawTextLeft(Text, X, Y, Color, Font) {
 	MainCanvas.font = Font || UI_FONT;
 	MainCanvas.fillStyle = Color;
