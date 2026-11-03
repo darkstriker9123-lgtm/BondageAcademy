@@ -419,16 +419,23 @@ function DrawStatsButton() {
 		STATS_BTN_X + STATS_BTN_W / 2, STATS_BTN_Y + STATS_BTN_H / 2);
 }
 
+// Profile portrait path: Actors/{Name}/Profile.png
+function GetActorProfilePath(actorName) {
+	if (!actorName) return "";
+	if (actorName == "Player" || actorName == Common_PlayerName) return "Actors/Player/Profile.png";
+	return "Actors/" + actorName + "/Profile.png";
+}
+
 function DrawStatsPanel() {
 	if (!StatsPanelOpen) return;
 
 	// Dim background
 	DrawRect(0, 0, UI_W, UI_H, "rgba(0,0,0,0.55)");
 
-	var panelW = 900;
-	var panelH = 980;
+	var panelW = 1600;
+	var panelH = 1080;
 	var panelX = Math.floor((UI_W - panelW) / 2);
-	var panelY = 80;
+	var panelY = 50;
 
 	DrawRect(panelX, panelY, panelW, panelH, "rgb(28,18,36)");
 	MainCanvas.strokeStyle = "rgba(200,100,140,0.7)";
@@ -440,82 +447,139 @@ function DrawStatsPanel() {
 	MainCanvas.fillStyle = "#ffffff";
 	MainCanvas.textAlign = "left";
 	MainCanvas.textBaseline = "middle";
-	MainCanvas.fillText((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "角色状态" : "Character Stats", panelX + 36, panelY + 48);
+	MainCanvas.fillText((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "角色状态" : "Character Stats", panelX + 36, panelY + 42);
 
 	// Close hint
 	MainCanvas.font = "24px Arial";
 	MainCanvas.fillStyle = "rgba(255,255,255,0.65)";
 	MainCanvas.textAlign = "right";
-	MainCanvas.fillText((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "点击关闭" : "Click to close", panelX + panelW - 36, panelY + 48);
+	MainCanvas.fillText((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "点击关闭" : "Click to close", panelX + panelW - 36, panelY + 42);
 
-	// Header row
-	var rowY = panelY + 100;
-	MainCanvas.font = "26px Arial";
-	MainCanvas.fillStyle = "rgba(255,200,220,0.85)";
-	MainCanvas.textAlign = "left";
-	MainCanvas.fillText((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "名字" : "Name", panelX + 40, rowY);
-	MainCanvas.fillText((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "好感" : "Love", panelX + 360, rowY);
-	MainCanvas.fillText((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "支配/服从" : "Dom / Sub", panelX + 560, rowY);
-	MainCanvas.fillText((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "关系" : "Link", panelX + 760, rowY);
-	DrawRect(panelX + 30, rowY + 22, panelW - 60, 2, "rgba(200,100,140,0.35)");
-
-	// Actor rows
-	if (typeof Actor === "undefined" || !Actor || Actor.length == 0) {
-		MainCanvas.font = "28px Arial";
-		MainCanvas.fillStyle = "rgba(255,255,255,0.7)";
-		MainCanvas.textAlign = "center";
-		MainCanvas.fillText((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "还没有认识的角色" : "No characters met yet", panelX + panelW / 2, panelY + panelH / 2);
-		return;
+	// Build display list: Player first, then met actors
+	var list = [];
+	list.push({ name: "Player", love: null, sub: null, isPlayer: true, link: "" });
+	if (typeof Actor !== "undefined" && Actor) {
+		for (var i = 0; i < Actor.length; i++) {
+			var a = Actor[i];
+			var name = a[ActorName] || ("#" + i);
+			if (name == "Player") continue;
+			var link = "";
+			if (typeof Common_PlayerLover !== "undefined" && Common_PlayerLover == name) link = (CurrentLanguageTag == "CN") ? "恋人" : "Lover";
+			else if (typeof Common_PlayerOwner !== "undefined" && Common_PlayerOwner == name) link = (CurrentLanguageTag == "CN") ? "主人" : "Owner";
+			else if (a[ActorOwner] == "Player") link = (CurrentLanguageTag == "CN") ? "你的" : "Owned";
+			list.push({
+				name: name,
+				love: a[ActorLove] || 0,
+				sub: a[ActorSubmission] || 0,
+				isPlayer: false,
+				link: link
+			});
+		}
 	}
 
-	var rowH = 52;
-	var startY = rowY + 48;
-	var maxRows = Math.floor((panelH - 160) / rowH);
+	// Card grid
+	var cols = 4;
+	var cardW = 360;
+	var cardH = 460;
+	var gapX = 24;
+	var gapY = 20;
+	var gridLeft = panelX + 40;
+	var gridTop = panelY + 90;
+	var maxCards = cols * 2; // 2 rows visible
 	if (StatsPanelScroll < 0) StatsPanelScroll = 0;
-	var maxScroll = Math.max(0, Actor.length - maxRows);
+	var maxScroll = Math.max(0, list.length - maxCards);
 	if (StatsPanelScroll > maxScroll) StatsPanelScroll = maxScroll;
 
-	MainCanvas.font = "28px Arial";
-	MainCanvas.textBaseline = "middle";
-	for (var i = 0; i < maxRows; i++) {
-		var idx = StatsPanelScroll + i;
-		if (idx >= Actor.length) break;
-		var a = Actor[idx];
-		var name = a[ActorName] || ("#" + idx);
-		var love = a[ActorLove] || 0;
-		var sub = a[ActorSubmission] || 0;
-		var y = startY + i * rowH;
+	for (var c = 0; c < maxCards; c++) {
+		var idx = StatsPanelScroll + c;
+		if (idx >= list.length) break;
+		var item = list[idx];
+		var col = c % cols;
+		var row = Math.floor(c / cols);
+		var cx = gridLeft + col * (cardW + gapX);
+		var cy = gridTop + row * (cardH + gapY);
 
-		// Alternate row tint
-		if (i % 2 == 0) DrawRect(panelX + 24, y - 22, panelW - 48, rowH - 4, "rgba(255,255,255,0.04)");
+		// Card background
+		DrawRect(cx, cy, cardW, cardH, "rgba(255,255,255,0.06)");
+		MainCanvas.strokeStyle = "rgba(200,100,140,0.35)";
+		MainCanvas.lineWidth = 2;
+		MainCanvas.strokeRect(cx, cy, cardW, cardH);
 
-		MainCanvas.textAlign = "left";
+		// Portrait area
+		var porW = 220;
+		var porH = 300;
+		var porX = cx + Math.floor((cardW - porW) / 2);
+		var porY = cy + 16;
+		DrawRect(porX, porY, porW, porH, "rgba(0,0,0,0.35)");
+
+		var profilePath = GetActorProfilePath(item.name);
+		var img = DrawGetImage(profilePath);
+		if (img && img.complete && img.naturalWidth > 0) {
+			try {
+				// Cover-fit into portrait box (crop sides if needed)
+				var iw = img.naturalWidth;
+				var ih = img.naturalHeight;
+				var scale = Math.max(porW / iw, porH / ih);
+				var sw = porW / scale;
+				var sh = porH / scale;
+				var sx = Math.max(0, (iw - sw) / 2);
+				var sy = Math.max(0, (ih - sh) * 0.12); // slight top bias
+				MainCanvas.drawImage(img, sx, sy, sw, sh, porX, porY, porW, porH);
+			} catch (e) {}
+		} else {
+			MainCanvas.font = "22px Arial";
+			MainCanvas.fillStyle = "rgba(255,255,255,0.4)";
+			MainCanvas.textAlign = "center";
+			MainCanvas.textBaseline = "middle";
+			MainCanvas.fillText("?", porX + porW / 2, porY + porH / 2);
+		}
+
+		// Name
+		var displayName = item.isPlayer
+			? ((typeof Common_PlayerName !== "undefined" && Common_PlayerName) ? Common_PlayerName : "Player")
+			: item.name;
+		MainCanvas.font = "26px Arial";
 		MainCanvas.fillStyle = "#ffffff";
-		MainCanvas.fillText(String(name), panelX + 40, y);
+		MainCanvas.textAlign = "center";
+		MainCanvas.textBaseline = "middle";
+		MainCanvas.fillText(String(displayName), cx + cardW / 2, cy + 330);
 
-		// Love
-		MainCanvas.fillStyle = (love > 0) ? "#7CFF7C" : ((love < 0) ? "#FF7C7C" : "#cccccc");
-		MainCanvas.fillText((love > 0 ? "+" : "") + String(love), panelX + 360, y);
+		// Stats under portrait
+		if (item.isPlayer) {
+			MainCanvas.font = "22px Arial";
+			MainCanvas.fillStyle = "rgba(255,255,255,0.55)";
+			MainCanvas.fillText((CurrentLanguageTag == "CN") ? "你" : "You", cx + cardW / 2, cy + 368);
+		} else {
+			MainCanvas.font = "22px Arial";
+			MainCanvas.textAlign = "left";
+			MainCanvas.fillStyle = "rgba(255,200,220,0.8)";
+			MainCanvas.fillText((CurrentLanguageTag == "CN") ? "好感" : "Love", cx + 28, cy + 365);
+			MainCanvas.fillStyle = (item.love > 0) ? "#7CFF7C" : ((item.love < 0) ? "#FF7C7C" : "#cccccc");
+			MainCanvas.textAlign = "right";
+			MainCanvas.fillText((item.love > 0 ? "+" : "") + String(item.love), cx + cardW - 28, cy + 365);
 
-		// Dom/Sub (positive = more dominant over them / their submission to player)
-		MainCanvas.fillStyle = (sub > 0) ? "#7CC8FF" : ((sub < 0) ? "#FFB07C" : "#cccccc");
-		MainCanvas.fillText((sub > 0 ? "+" : "") + String(sub), panelX + 560, y);
+			MainCanvas.textAlign = "left";
+			MainCanvas.fillStyle = "rgba(255,200,220,0.8)";
+			MainCanvas.fillText((CurrentLanguageTag == "CN") ? "支配/服从" : "Dom/Sub", cx + 28, cy + 400);
+			MainCanvas.fillStyle = (item.sub > 0) ? "#7CC8FF" : ((item.sub < 0) ? "#FFB07C" : "#cccccc");
+			MainCanvas.textAlign = "right";
+			MainCanvas.fillText((item.sub > 0 ? "+" : "") + String(item.sub), cx + cardW - 28, cy + 400);
 
-		// Relationship tags
-		var link = "";
-		if (typeof Common_PlayerLover !== "undefined" && Common_PlayerLover == name) link = (CurrentLanguageTag == "CN") ? "恋人" : "Lover";
-		else if (typeof Common_PlayerOwner !== "undefined" && Common_PlayerOwner == name) link = (CurrentLanguageTag == "CN") ? "主人" : "Owner";
-		else if (a[ActorOwner] == "Player") link = (CurrentLanguageTag == "CN") ? "你的" : "Owned";
-		MainCanvas.fillStyle = "#e8c0d0";
-		MainCanvas.fillText(link, panelX + 760, y);
+			if (item.link) {
+				MainCanvas.font = "20px Arial";
+				MainCanvas.fillStyle = "#e8c0d0";
+				MainCanvas.textAlign = "center";
+				MainCanvas.fillText(item.link, cx + cardW / 2, cy + 436);
+			}
+		}
 	}
 
 	// Scroll hint
-	if (Actor.length > maxRows) {
+	if (list.length > maxCards) {
 		MainCanvas.font = "22px Arial";
 		MainCanvas.fillStyle = "rgba(255,255,255,0.5)";
 		MainCanvas.textAlign = "center";
-		MainCanvas.fillText((StatsPanelScroll + 1) + "–" + Math.min(StatsPanelScroll + maxRows, Actor.length) + " / " + Actor.length, panelX + panelW / 2, panelY + panelH - 28);
+		MainCanvas.fillText((StatsPanelScroll + 1) + "–" + Math.min(StatsPanelScroll + maxCards, list.length) + " / " + list.length, panelX + panelW / 2, panelY + panelH - 24);
 	}
 }
 

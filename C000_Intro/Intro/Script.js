@@ -3,6 +3,9 @@ function C000_Intro_Intro_Load() {
 
 	LeaveIcon = "";
 	LeaveScreen = "";
+	TextPhase = 0;
+	PlayerTransitionFrame = 1;
+	if (typeof PlayerTransitionAutoTimer !== "undefined") PlayerTransitionAutoTimer = 0;
 
 	// Early morning placeholder time
 	StopTimer(8 * 60 * 60 * 1000);
@@ -12,9 +15,14 @@ function C000_Intro_Intro_Load() {
 // Chapter 0 - Intro Run
 function C000_Intro_Intro_Run() {
 
-	// Background and player
+	// Background and player (animate Player01–08)
 	DrawImage(CurrentChapter + "/" + CurrentScreen + "/Background.jpg", 0, 0);
-	DrawPlayerTransition();
+	if (typeof AdvancePlayerTransitionAuto === "function")
+		AdvancePlayerTransitionAuto();
+	if (typeof DrawPlayerTransition === "function")
+		DrawPlayerTransition(PlayerTransitionFrame, { x: 900, y: 40, w: 980, h: 1200, pad: 8 });
+	else
+		DrawPlayerTransition();
 
 	// Semi-transparent text panel (not opaque)
 	DrawRect(40, 10, 820, 920, "rgba(18,10,24,0.45)");
