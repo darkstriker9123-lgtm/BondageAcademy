@@ -354,14 +354,44 @@ function FindImage(Intro, CurrentStagePosition) {
 
 function BuildInteraction(CurrentStagePosition) {
 	if ((CurrentIntro != null) && (CurrentStage != null)) {
+		// Always clear so previous screen never bleeds through
+		DrawRect(0, 0, UI_W, UI_H, "#1a1220");
+		// Scene background (full screen)
+		var bg = CurrentChapter + "/" + CurrentScreen + "/Background.jpg";
+		DrawImage(bg, 0, 0);
 		var ImageName = FindImage(CurrentIntro, CurrentStagePosition);
-		if ((ImageName !== undefined) && (ImageName.trim() != ""))
-			DrawImage(CurrentChapter + "/" + CurrentScreen + "/" + ImageName, 0, 0);
-		else
-			DrawRect(0, 0, UI_W, UI_H, "#222222");
+		var drewPose = false;
+		if ((ImageName !== undefined) && (ImageName != null) && (String(ImageName).trim() != "")) {
+			var poseSrc = CurrentChapter + "/" + CurrentScreen + "/" + String(ImageName).trim();
+			var poseImg = DrawGetImage(poseSrc);
+			if (DrawImageReady(poseImg)) {
+				// Ground-align: feet sit on top of dialogue bar
+				DrawActorPoseGrounded(poseImg, 40);
+				drewPose = true;
+			}
+		}
+		if (!drewPose && typeof DrawInteractionActor === "function")
+			DrawInteractionActor();
 		DrawInteraction(CurrentStage, CurrentStagePosition, 0, 0);
 		DrawIntro(CurrentIntro, CurrentStagePosition, 0, 0);
 	}
+}
+
+// Draw a character pose image with feet on the dialogue-bar line
+function DrawActorPoseGrounded(img, leftX) {
+	if (!DrawImageReady(img)) return;
+	var maxH = UI_BOTTOM_Y - UI_TOP_H;
+	var maxW = 700;
+	var scale = Math.min(maxH / img.naturalHeight, maxW / img.naturalWidth, 1.25);
+	if (scale <= 0) scale = 1;
+	var dw = img.naturalWidth * scale;
+	var dh = img.naturalHeight * scale;
+	var x = (leftX != null) ? leftX : 40;
+	var y = UI_BOTTOM_Y - dh;
+	if (y < UI_TOP_H) y = UI_TOP_H;
+	try {
+		MainCanvas.drawImage(img, x, y, dw, dh);
+	} catch (e) {}
 }
 
 function GetPlayerIconImage() {
@@ -764,10 +794,16 @@ function DrawActor(ActorToDraw, X, Y, Zoom) {
 }
 
 function DrawInteractionActor() {
+	// Feet on dialogue bar (UI_BOTTOM_Y). Source sprites are 600x900.
+	var zoom = 1.08;
+	var h = 900 * zoom;
+	var y = UI_BOTTOM_Y - h;
+	if (y < UI_TOP_H) y = UI_TOP_H;
+	var x = 40;
 	if (CurrentActor == "")
-		DrawTransparentPlayerImage(400, UI_TOP_H, 1.4);
+		DrawTransparentPlayerImage(x, y, zoom);
 	else
-		DrawActor(CurrentActor, 400, UI_TOP_H, 1.4);
+		DrawActor(CurrentActor, x, y, zoom);
 }
 
 // Intro transition frames: Actors/PlayerTransition/Player01.png … Player08.png

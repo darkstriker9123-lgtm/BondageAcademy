@@ -231,16 +231,24 @@ function LoadText() {
 // Calls a dynamic function (if it exists)
 function DynamicFunction(FunctionName) {
 	if (!FunctionName || typeof FunctionName !== "string") return;
-	var name = FunctionName.indexOf("(") >= 0 ? FunctionName.substr(0, FunctionName.indexOf("(")) : FunctionName;
+	var call = FunctionName.trim();
+	var name = call.indexOf("(") >= 0 ? call.substr(0, call.indexOf("(")) : call;
+	// Short names in C999 item stages → C999_Common_Rope_QuerySelfBondage()
+	if (typeof window[name] != "function" && typeof CurrentChapter !== "undefined" && typeof CurrentScreen !== "undefined") {
+		var prefixed = CurrentChapter + "_" + CurrentScreen + "_" + call;
+		var pname = prefixed.indexOf("(") >= 0 ? prefixed.substr(0, prefixed.indexOf("(")) : prefixed;
+		if (typeof window[pname] == "function") call = prefixed;
+		name = call.indexOf("(") >= 0 ? call.substr(0, call.indexOf("(")) : call;
+	}
 	if (typeof window[name] == "function") {
 		try {
-			var Fct = new Function(FunctionName);
+			var Fct = new Function(call);
 			Fct();
 		} catch (e) {
-			console.log("DynamicFunction error: " + FunctionName, e);
+			console.log("DynamicFunction error: " + call, e);
 		}
-	} else if (FunctionName) {
-		console.log("Trying to launch invalid function: " + FunctionName);
+	} else if (call) {
+		console.log("Trying to launch invalid function: " + call);
 	}
 }
 

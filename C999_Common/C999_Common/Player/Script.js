@@ -1,5 +1,5 @@
 var C999_Common_Player_ActiveTab = "";
-var C999_Common_Player_MainActors = ["Amanda", "Sarah", "Sidney", "Jennifer", "Mildred", "Yuki", "Julia", "Sophie"];
+var C999_Common_Player_MainActors = ["Sidney", "Amanda", "Mika"];
 
 // Chapter Common - Player Load
 function C999_Common_Player_Load() {

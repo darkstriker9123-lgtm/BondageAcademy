@@ -54,9 +54,16 @@ function ActorSpecificGetValue(SpecificActorName, ValueType) {
 
 // Return the current actor's localized name
 function ActorGetDisplayName() {
-	if (ActorNamesText == null) ReadCSV("ActorNamesText", "C999_Common", "ActorNames", "Text", GetWorkingLanguageForChapter("C999_Common"));
-	if (ActorGetValue(ActorHideName)) return GetCSVText(ActorNamesText, "Unknown");
-	return GetCSVText(ActorNamesText, CurrentActor);
+	if (ActorNamesText == null)
+		ReadCSV("ActorNamesText", "C999_Common", "ActorNames", "Text", GetWorkingLanguageForChapter("C999_Common"));
+	if (CurrentActor == null || CurrentActor == "") return "";
+	if (ActorGetValue(ActorHideName)) {
+		var unk = GetCSVText(ActorNamesText, "Unknown");
+		return (!unk || String(unk).indexOf("MISSING") == 0) ? "Unknown" : unk;
+	}
+	var n = GetCSVText(ActorNamesText, CurrentActor);
+	if (!n || String(n).indexOf("MISSING") == 0) return CurrentActor;
+	return n;
 }
 
 // Change positively or negatively the current actor attitude toward the player
