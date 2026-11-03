@@ -53,34 +53,56 @@ function GetIconPath(Path, Name) {
 }
 
 function DrawGetImage(Source) {
+    if (!Source) return null;
     if (!CacheImage[Source]) {
-        var img = new Image;
+        var img = new Image();
         img.src = Source;
+        img.onerror = function () { this._broken = true; };
         CacheImage[Source] = img;
     }
     return CacheImage[Source];
 }
 
+function DrawImageReady(img) {
+	return img && !img._broken && img.complete && img.naturalWidth > 0;
+}
+
 function DrawImageZoom(Source, SX, SY, SWidth, SHeight, X, Y, Width, Height) {
-	MainCanvas.drawImage(DrawGetImage(Source), SX, SY, Math.round(SWidth), Math.round(SHeight), X, Y, Width, Height);
+	var img = DrawGetImage(Source);
+	if (!DrawImageReady(img)) return;
+	try {
+		MainCanvas.drawImage(img, SX, SY, Math.round(SWidth), Math.round(SHeight), X, Y, Width, Height);
+	} catch (e) {}
 }
 
 function DrawImageZoomMirror(Source, SX, SY, SWidth, SHeight, X, Y, Width, Height) {
+	var img = DrawGetImage(Source);
+	if (!DrawImageReady(img)) return;
 	MainCanvas.save();
-    MainCanvas.scale(-1, 1);
-	MainCanvas.drawImage(DrawGetImage(Source), X * -1, Y, Width * -1, Height);
-    MainCanvas.restore();
+	MainCanvas.scale(-1, 1);
+	try {
+		MainCanvas.drawImage(img, X * -1, Y, Width * -1, Height);
+	} catch (e) {}
+	MainCanvas.restore();
 }
 
 function DrawImage(Source, X, Y) {
-	MainCanvas.drawImage(DrawGetImage(Source), X, Y);
+	var img = DrawGetImage(Source);
+	if (!DrawImageReady(img)) return;
+	try {
+		MainCanvas.drawImage(img, X, Y);
+	} catch (e) {}
 }
 
 function DrawImageMirror(Source, X, Y) {
+	var img = DrawGetImage(Source);
+	if (!DrawImageReady(img)) return;
 	MainCanvas.save();
-    MainCanvas.scale(-1, 1);
-	MainCanvas.drawImage(DrawGetImage(Source), X * -1, Y);
-    MainCanvas.restore();
+	MainCanvas.scale(-1, 1);
+	try {
+		MainCanvas.drawImage(img, X * -1, Y);
+	} catch (e) {}
+	MainCanvas.restore();
 }
 
 function DrawText(Text, X, Y, Color) {
