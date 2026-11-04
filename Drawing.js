@@ -596,7 +596,7 @@ var StatsPanelScroll = 0;
 var STATS_BTN_W = 110;
 var STATS_BTN_H = 70;
 // Place Stats button on the top bar, right side of inventory area / left of day text
-var STATS_BTN_X = UI_W - 430;
+var STATS_BTN_X = UI_W - 560;
 var STATS_BTN_Y = 15;
 
 function DrawStatsButton() {
@@ -808,13 +808,23 @@ function BuildBottomBar() {
 		MainCanvas.font = "26px Arial";
 		MainCanvas.fillStyle = "black";
 		MainCanvas.textAlign = "right";
-		MainCanvas.fillText("Day " + CurrentDay + "  " + GetCurrentTimeString(), UI_W - 180, UI_TOP_H / 2);
+		MainCanvas.fillText("Day " + CurrentDay + "  " + GetCurrentTimeString(), UI_W - 220, UI_TOP_H / 2);
 	}
 	if (LeaveIcon != "") {
-		if (((MouseX >= UI_W - 100) && (MouseX <= UI_W) && (MouseY >= 0) && (MouseY <= UI_TOP_H)) || (IsMobile))
-			DrawImage("Icons/" + LeaveIcon + "_Active.png", UI_W - 96, 8);
-		else
-			DrawImage("Icons/" + LeaveIcon + "_Inactive.png", UI_W - 96, 8);
+		var leaveHover = ((MouseX >= UI_W - 110) && (MouseX <= UI_W) && (MouseY >= 0) && (MouseY <= UI_TOP_H)) || IsMobile;
+		var leavePath = "Icons/" + LeaveIcon + (leaveHover ? "_Active" : "_Inactive") + ".png";
+		var leaveImg = DrawGetImage(leavePath);
+		if (DrawImageReady(leaveImg))
+			DrawImage(leavePath, UI_W - 96, 8);
+		else {
+			// Visible fallback button
+			DrawRect(UI_W - 100, 12, 88, 70, leaveHover ? "rgba(200,80,120,0.9)" : "rgba(40,30,50,0.9)");
+			MainCanvas.font = "22px Arial";
+			MainCanvas.fillStyle = "#fff";
+			MainCanvas.textAlign = "center";
+			MainCanvas.textBaseline = "middle";
+			MainCanvas.fillText(LeaveIcon == "Wait" ? "Wait" : "Back", UI_W - 56, 47);
+		}
 	}
 	// Left floating "use now" icons
 	DrawUsableItems();

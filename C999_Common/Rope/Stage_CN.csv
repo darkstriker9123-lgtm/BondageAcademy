@@ -7,3 +7,6 @@ Stage,LoveReq,SubReq,VarReq,Interaction,Result,NextStage,LoveMod,SubMod,Function
 10,0,0,,(拉一拉股绳)ADD_MINUTES:1,你成功拉了拉股绳。|感觉很爽。,10,0,0,
 20,0,0,,(把自己绑起来),你仔细地将绳子绕在身体上|然后打了一个又紧又牢固的结。,10,0,0,DoSelfBondage()
 20,0,0,,(还是算了),你忍住了把自己绑起来的冲动。,0,0,0,
+0,0,0,,"（返回）","",0,0,0,"C999_Common_Rope_Back()"
+10,0,0,,"（返回）","",10,0,0,"C999_Common_Rope_Back()"
+20,0,0,,"（返回）","",0,0,0,"C999_Common_Rope_Back()"

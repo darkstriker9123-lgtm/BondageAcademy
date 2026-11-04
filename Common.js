@@ -356,7 +356,7 @@ function GetCSVText(CSVArray, Tag) {
 
 // When the leave / wait button is clicked (top-right, matches Drawing.js)
 function LeaveButtonClick() {
-	if (!((MouseX >= UI_W - 100) && (MouseX <= UI_W) && (MouseY >= 0) && (MouseY <= UI_TOP_H))) return;
+	if (!((MouseX >= UI_W - 110) && (MouseX <= UI_W) && (MouseY >= 0) && (MouseY <= UI_TOP_H))) return;
 	if (LeaveIcon == "Leave") {
 		// Allow screen to mark conversation finished before leaving
 		var leaveHook = window[CurrentChapter + "_" + CurrentScreen + "_OnLeaveIcon"];

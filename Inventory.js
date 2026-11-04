@@ -386,8 +386,13 @@ function GetClickedInventory() {
 
 function InventoryClick(Inv, LChapter, LScreen) {
 	if (Inv != "") {
+		// Set return target first so item Load() can keep it
+		LeaveChapter = LChapter || CurrentChapter;
+		LeaveScreen = LScreen || CurrentScreen;
 		SetScene("C999_Common", Inv.replace("Locked_", ""));
-		LeaveChapter = LChapter;
-		LeaveScreen = LScreen;
+		// SetScene clears Leave*; restore after Load
+		LeaveChapter = LChapter || "C001_Day01";
+		LeaveScreen = LScreen || "Campus";
+		LeaveIcon = "Leave";
 	}
 }

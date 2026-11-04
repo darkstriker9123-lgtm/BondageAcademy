@@ -2,43 +2,59 @@ var C999_Common_Rope_CurrentStage = 0;
 var C999_Common_Rope_HasLooseRope = 0;
 var C999_Common_Rope_IsRopeMasterTwo = 0;
 
-// Chapter Common - Rope Load
+// Remember where to return (InventoryClick sets these after SetScene; keep a backup)
+var C999_Common_Rope_ReturnChapter = "";
+var C999_Common_Rope_ReturnScreen = "";
+
 function C999_Common_Rope_Load() {
+	// Capture return target before anything else can clear it
+	if (LeaveChapter && LeaveChapter != "C999_Common")
+		C999_Common_Rope_ReturnChapter = LeaveChapter;
+	if (LeaveScreen && LeaveScreen != "Rope")
+		C999_Common_Rope_ReturnScreen = LeaveScreen;
 
-	// Load the scene parameters
 	LeaveIcon = "Leave";
-	LoadInteractions();
+	if (C999_Common_Rope_ReturnChapter) LeaveChapter = C999_Common_Rope_ReturnChapter;
+	if (C999_Common_Rope_ReturnScreen) LeaveScreen = C999_Common_Rope_ReturnScreen;
+	// Sensible Day 1 fallback
+	if (!LeaveScreen || LeaveScreen == "Rope") {
+		LeaveChapter = "C001_Day01";
+		LeaveScreen = "Campus";
+		C999_Common_Rope_ReturnChapter = LeaveChapter;
+		C999_Common_Rope_ReturnScreen = LeaveScreen;
+	}
 
-	// Set the correct starting stage
+	if (typeof LoadInteractions === "function") LoadInteractions();
+
 	if (PlayerHasLockedInventory("Rope") == true) C999_Common_Rope_CurrentStage = 10;
 	else C999_Common_Rope_CurrentStage = 0;
 
-	// If the player has a loose rope
 	C999_Common_Rope_HasLooseRope = PlayerHasInventory("Rope");
-
-	// Rope mastery 2+ unlocks extra self options (no college chapter-time check)
 	C999_Common_Rope_IsRopeMasterTwo = (PlayerGetSkillLevel("RopeMastery") >= 2);
 }
 
-// Chapter Common - Rope Run, we draw the regular player image if the item is on
 function C999_Common_Rope_Run() {
+	// Keep leave available every frame
+	LeaveIcon = "Leave";
+	if (C999_Common_Rope_ReturnChapter) LeaveChapter = C999_Common_Rope_ReturnChapter;
+	if (C999_Common_Rope_ReturnScreen) LeaveScreen = C999_Common_Rope_ReturnScreen;
+
 	BuildInteraction(C999_Common_Rope_CurrentStage);
-	if (PlayerHasLockedInventory("Rope") && (OverridenIntroImage == "")) DrawPlayerImage(150, 240);
+	if (PlayerHasLockedInventory("Rope") && (OverridenIntroImage == ""))
+		DrawPlayerImage(150, 240);
 }
 
-// Chapter Common - Rope Click, allow regular interactions and clicking on another item
 function C999_Common_Rope_Click() {
 	OverridenIntroImage = "";
 	ClickInteraction(C999_Common_Rope_CurrentStage);
-	InventoryClick(GetClickedInventory(), LeaveChapter, LeaveScreen);
+	if (typeof InventoryClick === "function")
+		InventoryClick(GetClickedInventory(), LeaveChapter, LeaveScreen);
 }
 
-// Chapter Common - Show the item image
 function C999_Common_Rope_ShowImage() {
 	OverridenIntroImage = "Rope.jpg";
 }
 
-// Chapter Common - When the player wants to tie herself, she can do it with rope mastery level 1
 function C999_Common_Rope_QuerySelfBondage() {
 	if ((Common_BondageAllowed) && (Common_SelfBondageAllowed)) {
 		if (PlayerGetSkillLevel("RopeMastery") >= 1) {
@@ -48,17 +64,22 @@ function C999_Common_Rope_QuerySelfBondage() {
 	} else OverridenIntroText = GetText("BadTiming");
 }
 
-// Chapter Common - When does self bondage with ropes (strips from any costume before that)
 function C999_Common_Rope_DoSelfBondage() {
 	PlayerLockInventory("Rope");
-	PlayerRemoveInventory("Rope", 1);
+	// Rope stays in permanent collection; locked state is what matters
 	C999_Common_Rope_HasLooseRope = PlayerHasInventory("Rope");
 }
 
-// Chapter Common - When does self bondage with ropes (strips from any costume before that)
 function C999_Common_Rope_DoFreeSelf() {
 	PlayerUnlockInventory("Rope");
 	PlayerAddInventory("Rope", 1);
 	C999_Common_Rope_CurrentStage = 0;
 	OverridenIntroText = GetText("FreeSelf");
+}
+
+function C999_Common_Rope_Back() {
+	var ch = C999_Common_Rope_ReturnChapter || LeaveChapter || "C001_Day01";
+	var sc = C999_Common_Rope_ReturnScreen || LeaveScreen || "Campus";
+	if (ch == "C999_Common") { ch = "C001_Day01"; sc = "Campus"; }
+	SetScene(ch, sc);
 }

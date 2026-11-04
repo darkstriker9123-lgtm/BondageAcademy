@@ -8,3 +8,6 @@ Stage,LoveReq,SubReq,VarReq,Interaction,Result,NextStage,LoveMod,SubMod,Function
 10,0,0,IsRopeMasterTwo,(Find an edge to|work the rope.)ADD_MINUTES:1,You catch an edge|but make no progress.,10,0,0,DoFreeSelf()
 20,0,0,,(Tie yourself.)ADD_MINUTES:1,You carefully wrap the rope around your torso|and manage to pull a tight and secure knot.,10,0,0,DoSelfBondage()
 20,0,0,,(Don't do it.),You resist the urge of tying yourself up.,0,0,0,
+0,0,0,,"(Back.)","",0,0,0,"C999_Common_Rope_Back()"
+10,0,0,,"(Back.)","",10,0,0,"C999_Common_Rope_Back()"
+20,0,0,,"(Back.)","",0,0,0,"C999_Common_Rope_Back()"
