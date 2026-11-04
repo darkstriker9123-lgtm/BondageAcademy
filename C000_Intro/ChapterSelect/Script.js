@@ -68,7 +68,8 @@ function C000_Intro_ChapterSelect_Run() {
 
 	if (typeof AdvancePlayerTransitionAuto === "function")
 		AdvancePlayerTransitionAuto();
-	// Large character (right side)
+	// Large character (right side) — clear box first so frames never stack
+	DrawRect(600, 10, 1300, 1260, "#120c1c");
 	if (typeof DrawPlayerTransition === "function")
 		DrawPlayerTransition(PlayerTransitionFrame, {
 			x: 600, y: 10, w: 1300, h: 1260, pad: 4

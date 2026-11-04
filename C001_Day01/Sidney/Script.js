@@ -34,6 +34,8 @@ function C001_Day01_Sidney_Load() {
 	Common_BondageAllowed = true;
 	Common_SelfBondageAllowed = false;
 	if (typeof LoadInteractions === "function") LoadInteractions();
+	// Gate bind options on actually carrying rope
+	C001_Day01_Sidney_HasRope = (typeof PlayerHasInventory === "function" && PlayerHasInventory("Rope"));
 
 	if (C001_Day01_Sidney_BindResolved) {
 		if (C001_Day01_Sidney_PlayerBoundHer && !C001_Day01_Sidney_UntiedHer)
@@ -86,13 +88,17 @@ function C001_Day01_Sidney_DrawPlayer() {
 		DrawTryPosePaths(paths, 980);
 }
 
+function C001_Day01_Sidney_DrawCharacters() {
+	C001_Day01_Sidney_DrawPlayer();
+}
+
 function C001_Day01_Sidney_Run() {
 	if (C001_Day01_Sidney_IsDone()) {
 		SetScene(CurrentChapter, "Campus");
 		return;
 	}
+	// BuildInteraction draws BG → NPC → DrawCharacters (player) → options → dialogue
 	BuildInteraction(C001_Day01_Sidney_CurrentStage);
-	C001_Day01_Sidney_DrawPlayer();
 }
 
 function C001_Day01_Sidney_Click() {
@@ -118,20 +124,27 @@ function C001_Day01_Sidney_MarkResolved() {
 }
 
 function C001_Day01_Sidney_BindSidney() {
+	if (typeof PlayerHasInventory === "function" && !PlayerHasInventory("Rope")) {
+		OverridenIntroText = "You need rope for that.";
+		return;
+	}
 	C001_Day01_Sidney_PlayerBoundHer = true;
 	C001_Day01_Sidney_SheBoundPlayer = false;
 	C001_Day01_Sidney_MarkResolved();
-	if (typeof PlayerRemoveInventory === "function") PlayerRemoveInventory("Rope", 1);
+	C001_Day01_Sidney_HasRope = true;
 	if (typeof ActorAddInventory === "function") ActorAddInventory("Rope");
 	if (typeof GameLogSpecificAdd === "function")
 		GameLogSpecificAdd(CurrentChapter, "Sidney", "PlayerBoundSidneyDay1");
 }
 
 function C001_Day01_Sidney_BindPlayer() {
+	if (typeof PlayerHasInventory === "function" && !PlayerHasInventory("Rope")) {
+		OverridenIntroText = "There's no rope to use.";
+		return;
+	}
 	C001_Day01_Sidney_SheBoundPlayer = true;
 	C001_Day01_Sidney_PlayerBoundHer = false;
 	C001_Day01_Sidney_MarkResolved();
-	if (typeof PlayerRemoveInventory === "function") PlayerRemoveInventory("Rope", 1);
 	if (typeof PlayerLockInventory === "function") PlayerLockInventory("Rope");
 	if (typeof GameLogSpecificAdd === "function")
 		GameLogSpecificAdd(CurrentChapter, "Sidney", "SidneyBoundPlayerDay1");

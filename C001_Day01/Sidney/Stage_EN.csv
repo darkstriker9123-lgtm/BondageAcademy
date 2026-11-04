@@ -9,8 +9,9 @@ Stage,LoveReq,SubReq,VarReq,OptionText,Chat,NextStage,LoveMod,SubMod,Script
 20,0,0,,"What do you want?","One clean outcome.|(Eyes on the rope.) You bind me, or I bind you.",30,0,0,
 20,0,0,,"Is that how introductions work here?","On empty paths? Yes.|(Almost a smile. Almost.)",30,1,0,
 20,0,0,,"I can leave.","You can try.|(She does not step aside.)",30,-1,1,
-30,0,0,,"I'll bind you.","Then do it.|(She turns her wrists out. Waiting.)",100,0,1,"C001_Day01_Sidney_BindSidney()"
-30,0,0,,"You bind me.","Hold still.|(She takes the coil without asking again.)",200,0,-1,"C001_Day01_Sidney_BindPlayer()"
+30,0,0,HasRope,"I'll bind you.","Then do it.|(She turns her wrists out. Waiting.)",100,0,1,"C001_Day01_Sidney_BindSidney()"
+30,0,0,HasRope,"You bind me.","Hold still.|(She takes the coil without asking again.)",200,0,-1,"C001_Day01_Sidney_BindPlayer()"
+30,0,0,!HasRope,"I don't have rope.","Then get some. Join kit or the practice case.|(She doesn't move.)",30,0,0,
 30,0,0,,"I need a moment.","Don't make me wait long.|(She stays on the path.)",30,0,0,
 100,0,0,,"You're not fighting hard.","Would it change the knots?|(Eyes bright.) Finish. Or don't waste my time.",110,0,1,
 100,0,0,,"Sorry.","Don't apologize with rope in your hands.|(A sharp breath.)",110,-1,1,

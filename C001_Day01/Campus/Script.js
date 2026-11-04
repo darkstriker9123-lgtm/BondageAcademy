@@ -18,6 +18,10 @@ function C001_Day01_Campus_Load() {
 	Common_SelfBondageAllowed = false;
 	C001_Day01_Campus_StatusText = "";
 	if (typeof LoadText === "function") LoadText();
+	// Safety: intake rope if missing
+	if (typeof PlayerHasInventory === "function" && !PlayerHasInventory("Rope")) {
+		if (typeof PlayerAddInventory === "function") PlayerAddInventory("Rope", 1);
+	}
 }
 
 function C001_Day01_Campus_IsBindDone() {

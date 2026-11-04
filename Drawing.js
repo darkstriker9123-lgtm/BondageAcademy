@@ -282,7 +282,7 @@ function DrawWrappedLines(text, x, y, maxW, lineH, color) {
 
 function DrawIntro(Intro, CurrentStagePosition, LoveLevel, SubLevel) {
 	// Transparent dialogue bar (Bondage College style bottom text + right stats)
-	DrawRect(0, UI_BOTTOM_Y, UI_W, UI_BOTTOM_H, "rgba(8,6,14,0.42)");
+	DrawRect(0, UI_BOTTOM_Y, UI_W, UI_BOTTOM_H, "rgba(8,6,14,0.72)");
 	DrawRect(0, UI_BOTTOM_Y, UI_W, 2, "rgba(255,200,220,0.3)");
 	var ShowText = "";
 	if (OverridenIntroText != "")
@@ -303,7 +303,7 @@ function DrawOption(OptionText, Index) {
 	var Left = UI_OPT_X;
 	var Top = UI_OPT_TOP + Index * (UI_OPT_H + UI_OPT_GAP);
 	var hover = (MouseX >= Left) && (MouseX <= Left + UI_OPT_W) && (MouseY >= Top) && (MouseY <= Top + UI_OPT_H) && !IsMobile;
-	DrawRect(Left, Top, UI_OPT_W, UI_OPT_H, hover ? "rgba(50,24,40,0.88)" : "rgba(12,8,18,0.78)");
+	DrawRect(Left, Top, UI_OPT_W, UI_OPT_H, hover ? "rgba(50,24,40,0.94)" : "rgba(12,8,18,0.90)");
 	MainCanvas.strokeStyle = hover ? "rgba(255,200,220,0.9)" : "rgba(255,255,255,0.35)";
 	MainCanvas.lineWidth = 2;
 	MainCanvas.strokeRect(Left, Top, UI_OPT_W, UI_OPT_H);
@@ -399,23 +399,26 @@ function BuildInteractionFindBackground() {
 
 function BuildInteraction(CurrentStagePosition) {
 	if ((CurrentIntro != null) && (CurrentStage != null)) {
-		// Always clear so previous screen never bleeds through
+		// Clear + background
 		DrawRect(0, 0, UI_W, UI_H, "#1a1220");
-		// Scene background (full screen) — try several filenames
 		DrawImage(BuildInteractionFindBackground(), 0, 0);
+		// NPC pose from intro CSV
 		var ImageName = FindImage(CurrentIntro, CurrentStagePosition);
 		var drewPose = false;
 		if ((ImageName !== undefined) && (ImageName != null) && (String(ImageName).trim() != "")) {
 			var poseSrc = CurrentChapter + "/" + CurrentScreen + "/" + String(ImageName).trim();
 			var poseImg = DrawGetImage(poseSrc);
 			if (DrawImageReady(poseImg)) {
-				// Ground-align: feet sit near bottom (dialogue is transparent)
 				DrawActorPoseGrounded(poseImg, 40);
 				drewPose = true;
 			}
 		}
 		if (!drewPose && typeof DrawInteractionActor === "function")
 			DrawInteractionActor();
+		// Optional second character (Player etc.) — still UNDER dialogue/options
+		var charHook = window[CurrentChapter + "_" + CurrentScreen + "_DrawCharacters"];
+		if (typeof charHook === "function") charHook();
+		// UI on top of all characters
 		DrawInteraction(CurrentStage, CurrentStagePosition, 0, 0);
 		DrawIntro(CurrentIntro, CurrentStagePosition, 0, 0);
 	}
@@ -523,7 +526,19 @@ function DrawInventory() {
 		var slotX = 4 + (i + 1) * UI_ICON;
 		var ImgState = "Inactive";
 		if (((MouseX >= slotX) && (MouseX <= slotX + UI_ICON - 1) && (MouseY >= 0) && (MouseY <= UI_TOP_H)) || IsMobile) ImgState = "Active";
-		DrawImage("Icons/" + name + "_" + ImgState + ".png", slotX, iconY);
+		var iconPath = "Icons/" + name + "_" + ImgState + ".png";
+		var iconImg = DrawGetImage(iconPath);
+		if (DrawImageReady(iconImg)) {
+			DrawImage(iconPath, slotX, iconY);
+		} else {
+			// Fallback label so inventory still shows when icon file is missing
+			DrawRect(slotX + 4, iconY + 4, UI_ICON - 8, UI_ICON - 8, ImgState == "Active" ? "rgba(80,40,60,0.9)" : "rgba(40,30,50,0.85)");
+			MainCanvas.font = "16px Arial";
+			MainCanvas.fillStyle = "#fff";
+			MainCanvas.textAlign = "center";
+			MainCanvas.textBaseline = "middle";
+			MainCanvas.fillText(String(name).substring(0, 6), slotX + UI_ICON / 2, iconY + UI_ICON / 2);
+		}
 		if (PlayerHasLockedInventory(name))
 			DrawImage("Icons/Lock_" + ImgState + ".png", slotX, iconY);
 	}

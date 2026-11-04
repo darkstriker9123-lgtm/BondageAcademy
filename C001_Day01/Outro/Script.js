@@ -1,4 +1,4 @@
-// C001_Day01 — Outro → Day 02
+// C001_Day01 — Outro → offer save → Day 02 or menu
 
 function C001_Day01_Outro_Load() {
 	LeaveIcon = "";
@@ -31,12 +31,22 @@ function C001_Day01_Outro_Run() {
 	}
 }
 
+function C001_Day01_Outro_GoNext() {
+	// Prefer Day 02 if built; otherwise main menu — but always offer save first
+	var nextChapter = "C000_Intro";
+	var nextScreen = "ChapterSelect";
+	if (typeof window["C002_Day02_Intro_Load"] === "function") {
+		nextChapter = "C002_Day02";
+		nextScreen = "Intro";
+	}
+	if (typeof SaveMenu === "function")
+		SaveMenu(nextChapter, nextScreen);
+	else
+		SetScene(nextChapter, nextScreen);
+}
+
 function C001_Day01_Outro_Click() {
 	TextPhase++;
-	if (TextPhase >= 7) {
-		if (typeof window["C002_Day02_Intro_Load"] === "function")
-			SetScene("C002_Day02", "Intro");
-		else
-			SetScene("C000_Intro", "ChapterSelect");
-	}
+	if (TextPhase >= 7)
+		C001_Day01_Outro_GoNext();
 }

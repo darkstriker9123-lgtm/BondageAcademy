@@ -9,15 +9,21 @@ function C000_Intro_Intro_Load() {
 }
 
 function C000_Intro_Intro_Run() {
+	// Full clear every frame so previous transition pose never ghosts
+	DrawRect(0, 0, UI_W, UI_H, "#120c1c");
 	DrawImage(CurrentChapter + "/" + CurrentScreen + "/Background.jpg", 0, 0);
+
+	// Character box (right) — clear then draw ONE frame only
+	var boxX = 1000, boxY = 60, boxW = 880, boxH = 1160;
+	DrawRect(boxX, boxY, boxW, boxH, "#120c1c");
 	if (typeof AdvancePlayerTransitionAuto === "function")
 		AdvancePlayerTransitionAuto();
 	if (typeof DrawPlayerTransition === "function")
-		DrawPlayerTransition(PlayerTransitionFrame, { x: 1000, y: 60, w: 880, h: 1160, pad: 8 });
+		DrawPlayerTransition(PlayerTransitionFrame, { x: boxX, y: boxY, w: boxW, h: boxH, pad: 8 });
 
 	// Transparent story panel (left)
 	var panelX = 48, panelY = 80, panelW = 900, panelH = 1000;
-	DrawRect(panelX, panelY, panelW, panelH, "rgba(12,8,18,0.5)");
+	DrawRect(panelX, panelY, panelW, panelH, "rgba(12,8,18,0.55)");
 	DrawRect(panelX, panelY, panelW, 3, "rgba(255,200,220,0.35)");
 
 	var keys = ["Intro1","Intro2","Intro3","Intro4","Intro5","Intro6","Intro7","Intro8","Intro9"];
