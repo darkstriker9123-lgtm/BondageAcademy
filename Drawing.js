@@ -293,8 +293,11 @@ function DrawIntro(Intro, CurrentStagePosition, LoveLevel, SubLevel) {
 				if (ActorInteractionAvailable(Intro[I][IntroLoveReq], Intro[I][IntroSubReq], Intro[I][IntroVarReq], Intro[I][IntroText], true))
 					ShowText = Intro[I][IntroText];
 	MainCanvas.font = "30px Arial";
+	// Pipe | = line break (Bondage College style dialogue)
+	if (ShowText && ShowText.indexOf("|") >= 0)
+		ShowText = ShowText.split("|").join("\n");
 	// Leave room on the right for name/stats
-	DrawWrappedLines(ShowText, 36, UI_BOTTOM_Y + 18, 1400, 36, "#ffffff");
+	DrawWrappedLines(ShowText, 36, UI_BOTTOM_Y + 18, 1400, 38, "#ffffff");
 	DrawActorStatsBar();
 }
 

@@ -1,6 +1,6 @@
 Stage,LoveReq,SubReq,VarReq,OptionText,Chat,NextStage,LoveMod,SubMod,Script
 0,0,0,,"…Hi.","Sidney.|(She sizes you up.) Transfer.",10,0,0,
-0,0,0,,"You look like you're waiting for someone.","I'm deciding if you're interesting.|(Long red hair. Gold eyes. Not smiling.)",10,0,1,
+0,0,0,,"You look like you're waiting for someone.","I'm deciding if you're interesting.|(Not smiling. Not looking away.)",10,0,1,
 0,0,0,,"I'll walk past if this is a problem.","Then walk.|(She doesn't move out of the way.)",10,-1,1,
 0,0,0,,"(Stay quiet.)","She lets the silence sit.|Most transfers talk too much. Point in your favor.",10,1,-1,
 10,0,0,,"I'm new. That's all.","I know.|(Glance at the kit rope.) They always issue that.",20,0,0,
