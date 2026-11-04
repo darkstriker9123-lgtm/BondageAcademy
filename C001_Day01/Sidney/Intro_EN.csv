@@ -1,15 +1,31 @@
 Stage,LoveReq,SubReq,VarReq,IntroText,Image
-0,0,0,,"A girl with long red hair stands on the path like she owns the quiet.|She watches you approach. Not friendly. Not unfriendly.",SidneyFace.png
-10,0,0,,"Sidney.|(She offers the name only after she decides you earned it.)",SidneyFace.png
-20,0,0,,"You got the join kit.|(Her eyes go to the rope at your side. Not surprised.)",SidneyStare.png
-30,0,0,,"One of us walks away tied.|(Calm. Certain. Not theatrical.)",SidneyStare.png
-40,0,0,,"You don't have rope on you.|(Almost disappointed.) Fix that — or accept the other way.",SidneyFace.png
-100,0,0,,"—Hey.|(The rope bites. She tests it once, hard.)",SidneyBondageFront.png
-110,0,0,,"You actually committed.|(Breath uneven. Eyes brighter, not softer.)",SidneyBondageFront.png
-120,0,0,,"Don't look so pleased.|(She is not begging. She is cataloguing.)",SidneyBondageFront.png
-150,0,0,,"You finish the knots the other way.|(She rolls her wrists. Does not thank you loudly.)",SidneyFace.png
-200,0,0,,"There.|(Your wrists settle. She checks the tension like practice.)",SidneyFace.png
-210,0,0,,"Standard issue works both ways.|(She steps back to see the whole picture.)",SidneyFace.png
-220,0,0,,"I could leave you like this.|(A pause.) I won't. Not on day one.",SidneyFace.png
-300,0,0,,"The rope is off. The day is not.|(She studies you one last time.)",SidneyFace.png
-310,0,0,,"Go. Sleep. Tomorrow the paths are still open.",SidneyFace.png
+0,0,0,,"A girl with long red hair stands on the path like she owns it.|She looks at you. Not friendly.",SidneyFace.png
+10,0,0,,"Sidney.",SidneyFace.png
+11,0,0,,"Transfer.",SidneyStare.png
+20,0,0,,"She doesn’t look away.",SidneyStare.png
+21,0,0,,"Not joking.",SidneyStare.png
+22,0,0,,"One of you leaves tied.",SidneyStare.png
+23,0,0,,"Your move.",SidneyStare.png
+40,0,0,,"She waits to see if you flinch.",SidneyStare.png
+100,0,0,,"Rope on her wrists.",SidneyBondageFront.png
+101,0,0,,"She tests the knots once.",SidneyBondageFront.png
+110,0,0,,"Breath short. Eyes hard.",SidneyBondageFront.png
+111,0,0,,"Still bound.",SidneyBondageFront.png
+115,0,0,,"Waiting.",SidneyBondageFront.png
+116,0,0,,"Your call.",SidneyBondageFront.png
+130,0,0,,"Anger under the calm.",SidneyBondageFront.png
+131,0,0,,"Untie me.",SidneyBondageFront.png
+140,0,0,,"Something cold settles.",SidneyBondageFront.png
+141,0,0,,"She will not forget.",SidneyBondageFront.png
+150,0,0,,"Wrists free.",SidneyFace.png
+151,0,0,,"Not even. Unfinished.",SidneyFace.png
+200,0,0,,"Your wrists settle.",SidneyFace.png
+201,0,0,,"She checks the tension.",SidneyFace.png
+210,0,0,,"Both ways.",SidneyFace.png
+211,0,0,,"Not today.",SidneyFace.png
+220,0,0,,"Rope off.",SidneyFace.png
+221,0,0,,"She doesn’t pretend it was nothing.",SidneyFace.png
+300,0,0,,"Path’s done for now.",SidneyFace.png
+301,0,0,,"Weekend isn’t.",SidneyFace.png
+310,0,0,,"Go.",SidneyFace.png
+311,0,0,,"She doesn’t follow.",SidneyFace.png

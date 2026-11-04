@@ -30,16 +30,10 @@ function C001_Day01_Intake_Run() {
 function C001_Day01_Intake_Click() {
 	TextPhase++;
 	if (TextPhase >= 8) {
-		C001_Day01_Intake_GiveRope();
+		// Kit is issued closed — rope is inside; open the case on campus to take it
+		if (typeof GameLogAdd === "function") GameLogAdd("GotJoinKitDay1");
+		if (typeof GameLogSpecificAdd === "function")
+			GameLogSpecificAdd(CurrentChapter, "", "GotJoinKitDay1");
 		SetScene(CurrentChapter, "Campus");
 	}
-}
-
-function C001_Day01_Intake_GiveRope() {
-	if (typeof PlayerAddInventory === "function" && !PlayerHasInventory("Rope"))
-		PlayerAddInventory("Rope", 1);
-	if (typeof GameLogAdd === "function")
-		GameLogAdd("GotJoinKitRopeDay1");
-	if (typeof GameLogSpecificAdd === "function")
-		GameLogSpecificAdd(CurrentChapter, "", "GotJoinKitRopeDay1");
 }

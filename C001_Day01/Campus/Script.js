@@ -18,10 +18,7 @@ function C001_Day01_Campus_Load() {
 	Common_SelfBondageAllowed = false;
 	C001_Day01_Campus_StatusText = "";
 	if (typeof LoadText === "function") LoadText();
-	// Safety: intake rope if missing
-	if (typeof PlayerHasInventory === "function" && !PlayerHasInventory("Rope")) {
-		if (typeof PlayerAddInventory === "function") PlayerAddInventory("Rope", 1);
-	}
+	// Rope stays in the kit until the player opens the case (RopeSource)
 }
 
 function C001_Day01_Campus_IsBindDone() {
@@ -56,7 +53,7 @@ function C001_Day01_Campus_Run() {
 	else if (typeof GameLogQuery === "function" && GameLogQuery(CurrentChapter, "", "SidneySceneDoneDay1")) sidneyDone = true;
 	var z = [
 		{ x: 80, y: 180, w: 360, h: 140, label: cn ? "公告板" : "Notice board", id: "notice" },
-		{ x: 480, y: 520, w: 360, h: 160, label: cn ? "练习绳箱" : "Rope case", id: "rope" },
+		{ x: 480, y: 520, w: 360, h: 160, label: cn ? "入门套件" : "Join kit", id: "rope" },
 		{ x: 1620, y: 420, w: 260, h: 280, label: cn ? "宿舍" : "Dorm", id: "dorm" }
 	];
 	if (!sidneyDone) {

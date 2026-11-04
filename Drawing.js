@@ -242,7 +242,7 @@ function DrawActorStatsBar() {
 	DrawImage("Icons/Heart.png", panelX, y - 18);
 	MainCanvas.font = "26px Arial";
 	MainCanvas.fillStyle = "#FFB0C0";
-	MainCanvas.fillText("Love", panelX + 40, y);
+	MainCanvas.fillText((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "好感" : "Love", panelX + 40, y);
 	DrawPosNegValue(ActorGetValue(ActorLove), panelX + 130, y);
 
 	y += 34;
@@ -250,7 +250,7 @@ function DrawActorStatsBar() {
 	else if (CurrentActor == Common_PlayerOwner) DrawImage("Icons/Owner.png", panelX, y - 18);
 	else DrawImage("Icons/Submission.png", panelX, y - 18);
 	MainCanvas.fillStyle = "#B0D0FF";
-	MainCanvas.fillText("Sub", panelX + 40, y);
+	MainCanvas.fillText((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "服从" : "Sub", panelX + 40, y);
 	DrawPosNegValue(ActorGetValue(ActorSubmission), panelX + 130, y);
 }
 
@@ -316,11 +316,21 @@ function DrawOption(OptionText, Index) {
 	MainCanvas.fillStyle = hover ? "#7CFF7C" : "#FFFFFF";
 	var maxW = UI_OPT_W - 36;
 	if (!OptionText) OptionText = "";
+	// Pipe = forced line break
+	if (OptionText.indexOf("|") >= 0) {
+		var parts = OptionText.split("|");
+		MainCanvas.fillText(parts[0], Left + UI_OPT_W / 2, Top + UI_OPT_H / 2 - 14);
+		if (parts[1]) MainCanvas.fillText(parts[1], Left + UI_OPT_W / 2, Top + UI_OPT_H / 2 + 14);
+		return;
+	}
 	if (MainCanvas.measureText(OptionText).width <= maxW) {
 		MainCanvas.fillText(OptionText, Left + UI_OPT_W / 2, Top + UI_OPT_H / 2);
-	} else {
+		return;
+	}
+	// Word wrap (EN) or char wrap (CN / no spaces)
+	var l1 = "", l2 = "";
+	if (OptionText.indexOf(" ") >= 0) {
 		var words = OptionText.split(" ");
-		var l1 = "", l2 = "";
 		for (var wi = 0; wi < words.length; wi++) {
 			var test = l1 ? (l1 + " " + words[wi]) : words[wi];
 			if (MainCanvas.measureText(test).width > maxW && l1) {
@@ -329,23 +339,44 @@ function DrawOption(OptionText, Index) {
 			}
 			l1 = test;
 		}
-		if (!l2) l2 = "";
-		if (MainCanvas.measureText(l2).width > maxW) {
-			while (l2.length > 3 && MainCanvas.measureText(l2 + "…").width > maxW) l2 = l2.slice(0, -1);
-			l2 = l2 + "…";
+	} else {
+		for (var ci = 0; ci < OptionText.length; ci++) {
+			var testc = l1 + OptionText.charAt(ci);
+			if (MainCanvas.measureText(testc).width > maxW && l1) {
+				l2 = OptionText.substring(ci);
+				break;
+			}
+			l1 = testc;
 		}
-		MainCanvas.fillText(l1, Left + UI_OPT_W / 2, Top + UI_OPT_H / 2 - 16);
-		MainCanvas.fillText(l2, Left + UI_OPT_W / 2, Top + UI_OPT_H / 2 + 16);
 	}
-	MainCanvas.textAlign = "left";
-	MainCanvas.textBaseline = "alphabetic";
+	if (l2 && MainCanvas.measureText(l2).width > maxW) {
+		while (l2.length > 1 && MainCanvas.measureText(l2 + "…").width > maxW) l2 = l2.slice(0, -1);
+		l2 = l2 + "…";
+	}
+	MainCanvas.fillText(l1, Left + UI_OPT_W / 2, Top + UI_OPT_H / 2 - 14);
+	if (l2) MainCanvas.fillText(l2, Left + UI_OPT_W / 2, Top + UI_OPT_H / 2 + 14);
 }
 
+
+// Build visible player options (empty Interaction = Sam-style continue, shown as one Continue)
 function GetAvailableOptions(Stage, CurrentStagePosition) {
+	if (typeof GetStageRows === "function") {
+		var rows = GetStageRows(CurrentStagePosition);
+		if (rows.choices.length > 0) return rows.choices;
+		// Only continue beats: surface one synthetic-looking row (text localized at draw)
+		if (rows.continues.length > 0) {
+			var c = rows.continues[0].slice(); // copy
+			c[StageInteractionText] = (typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN")
+				? "（继续）" : "(Continue.)";
+			return [c];
+		}
+		return [];
+	}
 	var list = [];
+	if (Stage == null) return list;
 	for (var S = 0; S < Stage.length; S++)
 		if (Stage[S][StageNumber] == CurrentStagePosition)
-			if (ActorInteractionAvailable(Stage[S][StageLoveReq], Stage[S][StageSubReq], Stage[S][StageVarReq], Stage[S][StageInteractionText], false))
+			if (ActorInteractionAvailable(Stage[S][StageLoveReq], Stage[S][StageSubReq], Stage[S][StageVarReq], Stage[S][StageInteractionText] || "(", false))
 				list.push(Stage[S]);
 	return list;
 }
@@ -365,11 +396,11 @@ function DrawInteraction(Stage, CurrentStagePosition, LoveLevel, SubLevel) {
 	// 5th slot: Next / Back when more than 4 options
 	if (total > 4) {
 		if (InteractionOptionPage < maxPage)
-			DrawOption("@Next →", 4);
+			DrawOption((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "@下一页 →" : "@Next →", 4);
 		else if (InteractionOptionPage > 0)
-			DrawOption("@← Back", 4);
+			DrawOption((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "@← 返回" : "@← Back", 4);
 		else
-			DrawOption("@Next →", 4);
+			DrawOption((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "@下一页 →" : "@Next →", 4);
 	}
 }
 
@@ -489,6 +520,18 @@ function GetPlayerIconImage() {
 	return Image;
 }
 
+function InventoryDisplayName(name) {
+	if (typeof CurrentLanguageTag === "undefined" || CurrentLanguageTag != "CN") return name;
+	var map = {
+		"Rope": "绳子", "Cuffs": "手铐", "CuffsKey": "手铐钥匙",
+		"BallGag": "口球", "ClothGag": "布口塞", "TapeGag": "胶带口塞",
+		"Blindfold": "眼罩", "Collar": "项圈", "Crop": "马鞭",
+		"Armbinder": "臂缚", "ChastityBelt": "贞操带", "VibratingEgg": "跳蛋",
+		"ButtPlug": "肛塞", "Mitts": "连指手套", "Hood": "头套"
+	};
+	return map[name] || name;
+}
+
 function DrawInventory() {
 	var iconY = 5;
 	if (typeof PlayerInventoryScroll === "undefined") PlayerInventoryScroll = 0;
@@ -540,7 +583,8 @@ function DrawInventory() {
 			MainCanvas.fillStyle = "#fff";
 			MainCanvas.textAlign = "center";
 			MainCanvas.textBaseline = "middle";
-			MainCanvas.fillText(String(name).substring(0, 6), slotX + UI_ICON / 2, iconY + UI_ICON / 2);
+			var dname = InventoryDisplayName(name);
+			MainCanvas.fillText(String(dname).substring(0, 4), slotX + UI_ICON / 2, iconY + UI_ICON / 2);
 		}
 		if (PlayerHasLockedInventory(name))
 			DrawImage("Icons/Lock_" + ImgState + ".png", slotX, iconY);
@@ -653,20 +697,29 @@ function DrawStatsPanel() {
 	MainCanvas.textAlign = "right";
 	MainCanvas.fillText((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? "点击关闭" : "Click to close", panelX + panelW - 36, panelY + 42);
 
-	// Build display list: Player first, then met actors
+	// Build display list: met NPCs only (no player card)
 	var list = [];
-	list.push({ name: "Player", love: null, sub: null, isPlayer: true, link: "" });
+	var cn = (typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN");
 	if (typeof Actor !== "undefined" && Actor) {
 		for (var i = 0; i < Actor.length; i++) {
 			var a = Actor[i];
 			var name = a[ActorName] || ("#" + i);
 			if (name == "Player") continue;
 			var link = "";
-			if (typeof Common_PlayerLover !== "undefined" && Common_PlayerLover == name) link = (CurrentLanguageTag == "CN") ? "恋人" : "Lover";
-			else if (typeof Common_PlayerOwner !== "undefined" && Common_PlayerOwner == name) link = (CurrentLanguageTag == "CN") ? "主人" : "Owner";
-			else if (a[ActorOwner] == "Player") link = (CurrentLanguageTag == "CN") ? "你的" : "Owned";
+			if (typeof Common_PlayerLover !== "undefined" && Common_PlayerLover == name) link = cn ? "恋人" : "Lover";
+			else if (typeof Common_PlayerOwner !== "undefined" && Common_PlayerOwner == name) link = cn ? "主人" : "Owner";
+			else if (a[ActorOwner] == "Player") link = cn ? "所属" : "Owned";
+			// Localized display name
+			var dname = name;
+			if (typeof ActorNamesText !== "undefined" && ActorNamesText) {
+				var tn = GetCSVText(ActorNamesText, name);
+				if (tn && String(tn).indexOf("MISSING") != 0) dname = tn;
+			} else if (typeof ActorGetDisplayName === "function") {
+				// temporarily not switching CurrentActor
+			}
 			list.push({
 				name: name,
+				displayName: dname,
 				love: a[ActorLove] || 0,
 				sub: a[ActorSubmission] || 0,
 				isPlayer: false,
@@ -732,10 +785,8 @@ function DrawStatsPanel() {
 			MainCanvas.fillText("?", porX + porW / 2, porY + porH / 2);
 		}
 
-		// Name
-		var displayName = item.isPlayer
-			? ((typeof Common_PlayerName !== "undefined" && Common_PlayerName) ? Common_PlayerName : "Player")
-			: item.name;
+		// Name (localized)
+		var displayName = item.displayName || item.name;
 		MainCanvas.font = "26px Arial";
 		MainCanvas.fillStyle = "#ffffff";
 		MainCanvas.textAlign = "center";
@@ -743,32 +794,26 @@ function DrawStatsPanel() {
 		MainCanvas.fillText(String(displayName), cx + cardW / 2, cy + 330);
 
 		// Stats under portrait
-		if (item.isPlayer) {
-			MainCanvas.font = "22px Arial";
-			MainCanvas.fillStyle = "rgba(255,255,255,0.55)";
-			MainCanvas.fillText((CurrentLanguageTag == "CN") ? "你" : "You", cx + cardW / 2, cy + 368);
-		} else {
-			MainCanvas.font = "22px Arial";
-			MainCanvas.textAlign = "left";
-			MainCanvas.fillStyle = "rgba(255,200,220,0.8)";
-			MainCanvas.fillText((CurrentLanguageTag == "CN") ? "好感" : "Love", cx + 28, cy + 365);
-			MainCanvas.fillStyle = (item.love > 0) ? "#7CFF7C" : ((item.love < 0) ? "#FF7C7C" : "#cccccc");
-			MainCanvas.textAlign = "right";
-			MainCanvas.fillText((item.love > 0 ? "+" : "") + String(item.love), cx + cardW - 28, cy + 365);
+		MainCanvas.font = "22px Arial";
+		MainCanvas.textAlign = "left";
+		MainCanvas.fillStyle = "rgba(255,200,220,0.8)";
+		MainCanvas.fillText(cn ? "好感" : "Love", cx + 28, cy + 365);
+		MainCanvas.fillStyle = (item.love > 0) ? "#7CFF7C" : ((item.love < 0) ? "#FF7C7C" : "#cccccc");
+		MainCanvas.textAlign = "right";
+		MainCanvas.fillText((item.love > 0 ? "+" : "") + String(item.love), cx + cardW - 28, cy + 365);
 
-			MainCanvas.textAlign = "left";
-			MainCanvas.fillStyle = "rgba(255,200,220,0.8)";
-			MainCanvas.fillText((CurrentLanguageTag == "CN") ? "支配/服从" : "Dom/Sub", cx + 28, cy + 400);
-			MainCanvas.fillStyle = (item.sub > 0) ? "#7CC8FF" : ((item.sub < 0) ? "#FFB07C" : "#cccccc");
-			MainCanvas.textAlign = "right";
-			MainCanvas.fillText((item.sub > 0 ? "+" : "") + String(item.sub), cx + cardW - 28, cy + 400);
+		MainCanvas.textAlign = "left";
+		MainCanvas.fillStyle = "rgba(255,200,220,0.8)";
+		MainCanvas.fillText(cn ? "服从" : "Sub", cx + 28, cy + 400);
+		MainCanvas.fillStyle = (item.sub > 0) ? "#7CC8FF" : ((item.sub < 0) ? "#FFB07C" : "#cccccc");
+		MainCanvas.textAlign = "right";
+		MainCanvas.fillText((item.sub > 0 ? "+" : "") + String(item.sub), cx + cardW - 28, cy + 400);
 
-			if (item.link) {
-				MainCanvas.font = "20px Arial";
-				MainCanvas.fillStyle = "#e8c0d0";
-				MainCanvas.textAlign = "center";
-				MainCanvas.fillText(item.link, cx + cardW / 2, cy + 436);
-			}
+		if (item.link) {
+			MainCanvas.font = "20px Arial";
+			MainCanvas.fillStyle = "#e8c0d0";
+			MainCanvas.textAlign = "center";
+			MainCanvas.fillText(item.link, cx + cardW / 2, cy + 436);
 		}
 	}
 
@@ -785,7 +830,12 @@ function StatsButtonClick() {
 	if (!((MouseX >= STATS_BTN_X) && (MouseX <= STATS_BTN_X + STATS_BTN_W) &&
 		(MouseY >= STATS_BTN_Y) && (MouseY <= STATS_BTN_Y + STATS_BTN_H))) return false;
 	StatsPanelOpen = !StatsPanelOpen;
-	if (StatsPanelOpen) StatsPanelScroll = 0;
+	if (StatsPanelOpen) {
+		StatsPanelScroll = 0;
+		// Refresh name table for current language
+		if (typeof ReadCSV === "function")
+			ReadCSV("ActorNamesText", "C999_Common", "ActorNames", "Text", GetWorkingLanguageForChapter("C999_Common"));
+	}
 	return true;
 }
 
@@ -811,7 +861,9 @@ function BuildBottomBar() {
 		MainCanvas.font = "26px Arial";
 		MainCanvas.fillStyle = "black";
 		MainCanvas.textAlign = "right";
-		MainCanvas.fillText("Day " + CurrentDay + "  " + GetCurrentTimeString(), UI_W - 220, UI_TOP_H / 2);
+		MainCanvas.fillText(
+			((typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN") ? ("第 " + CurrentDay + " 天  ") : ("Day " + CurrentDay + "  "))
+			+ GetCurrentTimeString(), UI_W - 220, UI_TOP_H / 2);
 	}
 	if (LeaveIcon != "") {
 		var leaveHover = ((MouseX >= UI_W - 110) && (MouseX <= UI_W) && (MouseY >= 0) && (MouseY <= UI_TOP_H)) || IsMobile;
@@ -826,7 +878,12 @@ function BuildBottomBar() {
 			MainCanvas.fillStyle = "#fff";
 			MainCanvas.textAlign = "center";
 			MainCanvas.textBaseline = "middle";
-			MainCanvas.fillText(LeaveIcon == "Wait" ? "Wait" : "Back", UI_W - 56, 47);
+			var leaveLbl;
+			if (typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN")
+				leaveLbl = (LeaveIcon == "Wait") ? "等待" : "返回";
+			else
+				leaveLbl = (LeaveIcon == "Wait") ? "Wait" : "Back";
+			MainCanvas.fillText(leaveLbl, UI_W - 56, 47);
 		}
 	}
 	// Left floating "use now" icons

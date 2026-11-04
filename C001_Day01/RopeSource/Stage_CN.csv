@@ -1,4 +1,6 @@
-Stage,LoveReq,SubReq,VarReq,OptionText,Chat,NextStage,LoveMod,SubMod,Script
-0,0,0,,"多拿一卷。","你从箱子里拿起软绳。|练习发放。没人问。",20,0,0,"C001_Day01_RopeSource_GetRope()"
-0,0,0,,"算了。","你退后一步。|入门套件的绳子暂时够了。",20,0,0,
-20,0,0,,"（回校园）","小路还开着。",20,0,0,"SetScene(CurrentChapter, ""Campus"")"
+Stage,LoveReq,SubReq,VarReq,Interaction,Result,NextStage,LoveMod,SubMod,Function
+0,0,0,,"打开套件。","你打开入门套件的扣锁。|软麻绳压在清单最上面。",10,0,0,
+0,0,0,,"先不打开。","你退开一步。|套件暂时仍锁着。",20,0,0,
+10,0,0,,"取出绳子。","你拿起那卷绳子。正式发放。没有人问。",20,0,0,"C001_Day01_RopeSource_GetRope()"
+10,0,0,,"再盖上。","你什么也没拿就盖上盖子。",20,0,0,
+20,0,0,,"（回校园）","小径仍开着。",20,0,0,"C001_Day01_RopeSource_Back()"

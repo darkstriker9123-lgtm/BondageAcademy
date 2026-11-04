@@ -1,4 +1,6 @@
-Stage,LoveReq,SubReq,VarReq,OptionText,Chat,NextStage,LoveMod,SubMod,Script
-0,0,0,,"Take an extra coil.","You lift soft rope from the case.|Practice issue. No questions asked.",20,0,0,"C001_Day01_RopeSource_GetRope()"
-0,0,0,,"Leave it.","You step back.|The join-kit rope is enough for now.",20,0,0,
-20,0,0,,"(Return to campus.)","The path is still open.",20,0,0,"SetScene(CurrentChapter, ""Campus"")"
+Stage,LoveReq,SubReq,VarReq,Interaction,Result,NextStage,LoveMod,SubMod,Function
+0,0,0,,"Open the kit.","You unlatch the join-kit case.|Soft hemp rope sits on top of the issue list.",10,0,0,
+0,0,0,,"Leave it closed.","You step back.|The kit stays latched for now.",20,0,0,
+10,0,0,,"Take the rope.","You take the coil. Official issue. No questions.",20,0,0,"C001_Day01_RopeSource_GetRope()"
+10,0,0,,"Close it again.","You close the lid without taking anything.",20,0,0,
+20,0,0,,"(Return to campus.)","The path is still open.",20,0,0,"C001_Day01_RopeSource_Back()"

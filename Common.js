@@ -277,16 +277,64 @@ function SetScene(Chapter, Screen) {
 }
 
 // Validates if any interaction was clicked
+function ApplyStageOption(opt) {
+	if (!opt) return;
+	InteractionOptionPage = 0;
+	var next = parseInt(opt[StageNextStage], 10);
+	if (isNaN(next)) next = 0;
+	var stageVar = CurrentChapter + "_" + CurrentScreen + "_CurrentStage";
+	window[stageVar] = next;
+	if (typeof ActorChangeAttitude === "function")
+		ActorChangeAttitude(opt[StageLoveMod], opt[StageSubMod]);
+	if (opt[StageFunction] != "" && opt[StageFunction] != null)
+		DynamicFunction(opt[StageFunction]);
+	var res = opt[StageInteractionResult] || "";
+	if (res.indexOf("ADD_MINUTES:") == 0) {
+		var Minutes = parseInt(res.substr(12));
+		if (!isNaN(Minutes)) {
+			CurrentTime = CurrentTime + (Minutes * 60000);
+			if (typeof AddMinutes === "function") AddMinutes(Minutes);
+		}
+		var pipe = res.indexOf("|");
+		OverridenIntroText = (pipe >= 0) ? res.substr(pipe + 1) : "";
+	} else {
+		OverridenIntroText = res;
+	}
+	if (typeof LoadInteractions === "function") LoadInteractions();
+}
+
+// True if interaction cell is empty / pure continue beat (Sam-style)
+function StageIsContinueRow(opt) {
+	if (!opt) return true;
+	var t = opt[StageInteractionText];
+	if (t == null) return true;
+	t = String(t).trim();
+	return (t == "" || t == "@" || t == "(Continue.)" || t == "（继续）");
+}
+
+function GetStageRows(CurrentStagePosition) {
+	var choices = [];
+	var continues = [];
+	if (CurrentStage == null) return { choices: choices, continues: continues };
+	for (var L = 0; L < CurrentStage.length; L++) {
+		if (CurrentStage[L][StageNumber] != CurrentStagePosition) continue;
+		if (!ActorInteractionAvailable(CurrentStage[L][StageLoveReq], CurrentStage[L][StageSubReq], CurrentStage[L][StageVarReq], CurrentStage[L][StageInteractionText] || "(", false))
+			continue;
+		if (StageIsContinueRow(CurrentStage[L])) continues.push(CurrentStage[L]);
+		else choices.push(CurrentStage[L]);
+	}
+	return { choices: choices, continues: continues };
+}
+
 function ClickInteraction(CurrentStagePosition) {
 
 	if (CurrentStage == null) return;
 
-	// Build same available list as Drawing.js
-	var list = [];
-	for (var L = 0; L < CurrentStage.length; L++)
-		if (CurrentStage[L][StageNumber] == CurrentStagePosition)
-			if (ActorInteractionAvailable(CurrentStage[L][StageLoveReq], CurrentStage[L][StageSubReq], CurrentStage[L][StageVarReq], CurrentStage[L][StageInteractionText], false))
-				list.push(CurrentStage[L]);
+	var rows = GetStageRows(CurrentStagePosition);
+	var list = rows.choices;
+	// If no real choices, continue-beats act as the only option list
+	if (list.length == 0 && rows.continues.length > 0)
+		list = rows.continues;
 
 	var total = list.length;
 	var maxPage = Math.max(0, Math.ceil(total / 4) - 1);
@@ -297,29 +345,11 @@ function ClickInteraction(CurrentStagePosition) {
 	var start = InteractionOptionPage * 4;
 	var show = list.slice(start, start + 4);
 
-	// Check option rows 0-3
+	// Option rows 0-3
 	for (var i = 0; i < show.length; i++) {
 		var top = UI_OPT_TOP + i * (UI_OPT_H + UI_OPT_GAP);
 		if ((MouseX >= UI_OPT_X) && (MouseX <= UI_OPT_X + UI_OPT_W) && (MouseY >= top) && (MouseY <= top + UI_OPT_H)) {
-			var opt = show[i];
-			InteractionOptionPage = 0; // reset page on choice
-			CurrentStagePosition = parseInt(opt[StageNextStage], 10);
-			if (isNaN(CurrentStagePosition)) CurrentStagePosition = 0;
-			// Write back to chapter screen stage var (JS numbers are pass-by-value)
-			var stageVar = CurrentChapter + "_" + CurrentScreen + "_CurrentStage";
-			window[stageVar] = CurrentStagePosition;
-			ActorChangeAttitude(opt[StageLoveMod], opt[StageSubMod]);
-			if (opt[StageFunction] != "" && opt[StageFunction] != null)
-				DynamicFunction(opt[StageFunction]);
-			if (opt[StageInteractionResult].indexOf("ADD_MINUTES:") == 0) {
-				var Minutes = parseInt(opt[StageInteractionResult].substr(12));
-				if (!isNaN(Minutes)) {
-					CurrentTime = CurrentTime + (Minutes * 60000);
-					if (typeof AddMinutes === "function") AddMinutes(Minutes);
-				}
-				OverridenIntroText = opt[StageInteractionResult].substr(opt[StageInteractionResult].indexOf("|") + 1);
-			} else OverridenIntroText = opt[StageInteractionResult];
-			LoadInteractions();
+			ApplyStageOption(show[i]);
 			return;
 		}
 	}
@@ -330,6 +360,14 @@ function ClickInteraction(CurrentStagePosition) {
 		if ((MouseX >= UI_OPT_X) && (MouseX <= UI_OPT_X + UI_OPT_W) && (MouseY >= top5) && (MouseY <= top5 + UI_OPT_H)) {
 			if (InteractionOptionPage < maxPage) InteractionOptionPage++;
 			else if (InteractionOptionPage > 0) InteractionOptionPage--;
+			return;
+		}
+	}
+
+	// Click dialogue bar to continue when only continue-beats (or mixed and user clicks text)
+	if (rows.continues.length > 0 && rows.choices.length == 0) {
+		if ((MouseY >= UI_BOTTOM_Y) && (MouseY <= UI_H)) {
+			ApplyStageOption(rows.continues[0]);
 			return;
 		}
 	}

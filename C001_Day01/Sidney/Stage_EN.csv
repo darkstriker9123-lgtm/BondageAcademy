@@ -1,34 +1,68 @@
-Stage,LoveReq,SubReq,VarReq,OptionText,Chat,NextStage,LoveMod,SubMod,Script
-0,0,0,,"…Hi.","Sidney.|(She sizes you up.) Transfer.",10,0,0,
-0,0,0,,"You look like you're waiting for someone.","I'm deciding if you're interesting.|(Not smiling. Not looking away.)",10,0,1,
-0,0,0,,"I'll walk past if this is a problem.","Then walk.|(She doesn't move out of the way.)",10,-1,1,
-0,0,0,,"(Stay quiet.)","She lets the silence sit.|Most transfers talk too much. Point in your favor.",10,1,-1,
-10,0,0,,"I'm new. That's all.","I know.|(Glance at the kit rope.) They always issue that.",20,0,0,
-10,0,0,,"Do you have a name?","Sidney.|(Offered late on purpose.)",20,1,0,
-10,0,0,,"If this is a test, say so.","Everything here is a test.|(Slight tip of the head.) Some are just quieter.",20,0,1,
-20,0,0,,"What do you want?","One clean outcome.|(Eyes on the rope.) You bind me, or I bind you.",30,0,0,
-20,0,0,,"Is that how introductions work here?","On empty paths? Yes.|(Almost a smile. Almost.)",30,1,0,
-20,0,0,,"I can leave.","You can try.|(She does not step aside.)",30,-1,1,
-30,0,0,HasRope,"I'll bind you.","Then do it.|(She turns her wrists out. Waiting.)",100,0,1,"C001_Day01_Sidney_BindSidney()"
-30,0,0,HasRope,"You bind me.","Hold still.|(She takes the coil without asking again.)",200,0,-1,"C001_Day01_Sidney_BindPlayer()"
-30,0,0,!HasRope,"I don't have rope.","Then get some. Join kit or the practice case.|(She doesn't move.)",30,0,0,
-30,0,0,,"I need a moment.","Don't make me wait long.|(She stays on the path.)",30,0,0,
-100,0,0,,"You're not fighting hard.","Would it change the knots?|(Eyes bright.) Finish. Or don't waste my time.",110,0,1,
-100,0,0,,"Sorry.","Don't apologize with rope in your hands.|(A sharp breath.)",110,-1,1,
-110,0,0,,"I'll untie you.","…Do it then.|(She watches your hands.)",150,1,0,"C001_Day01_Sidney_UntieSidney()"
-110,0,0,,"I'll leave you like this.","Remember that choice.|(Voice flat.) I will.",300,0,1,"C001_Day01_Sidney_LeaveBoundFlag()"
-120,0,0,,"I'll untie you.","…Fine.|(She holds still for the knots.)",150,1,0,"C001_Day01_Sidney_UntieSidney()"
-120,0,0,,"I should go.","Then go.|(Still bound. Still watching.)",300,0,0,"C001_Day01_Sidney_LeaveBoundFlag()"
-150,0,0,,"We're even.","Not even.|(Soft.) Just unfinished.",300,1,0,
-150,0,0,,"Thank you for not making this worse.","Don't thank me yet.|(Almost a smile.)",300,1,0,
-200,0,0,,"…Tight enough.","I know.|(She checks once more.)",210,0,-1,
-200,0,0,,"You didn't have to.","You handed me the option.|(Calm.)",210,0,-1,
-210,0,0,,"Are you going to leave me?","No.|(She starts on the knots the other way.) Day one.",220,1,0,"C001_Day01_Sidney_ReleasePlayer()"
-210,0,0,,"(Wait.)","She takes her time on purpose.|Patience is part of it.",220,0,-1,"C001_Day01_Sidney_ReleasePlayer()"
-220,0,0,,"Thank you.","For what.|(Almost amused.) The lesson, or the release?",300,1,-1,
-220,0,0,,"That was fast.","Don't get used to mercy.|(Turns your wrists free.)",300,0,-1,
-300,0,0,,"So that's day one.","That's day one.|(Rubs a wrist or watches yours.) Weekend isn't over.",310,0,0,
-300,0,0,,"Will I see you tomorrow?","You will.|(Certain.) Whether I'm kind depends on how you left things.",310,0,0,
-300,0,0,,"I won't forget this.","Good.|(Almost soft.) Neither will I.",310,1,0,
-310,0,0,,"(Head back to campus.)","She doesn't follow.|Go.",310,0,0,"C001_Day01_Sidney_LeaveToCampus()"
-310,0,0,,"…Take care.","You first, transfer.|(Turns away first or lets you.)",310,1,0,"C001_Day01_Sidney_LeaveToCampus()"
+Stage,LoveReq,SubReq,VarReq,Interaction,Result,NextStage,LoveMod,SubMod,Function
+0,0,0,,"I just wanted to introduce myself.","Tch… whatever. Name’s Sidney.",10,0,0,
+0,0,0,,"Do you always act this cold to new people?","…Fine. I’m Sidney.",10,0,1,
+0,0,0,,"Hey, don’t be mad. I’m new here.","New and soft. You won’t last a week.",10,-1,-1,
+0,0,0,,"You look strong. Nice to meet you.","Damn right. Name’s Sidney.",10,1,0,
+0,0,0,,"What’s with the attitude?","Watch your mouth.",10,-2,0,
+10,0,0,,,"You’re the transfer.|(Her eyes go to your side — kit, or rope if you opened it.)",11,0,0,
+11,0,0,,"Yeah. That’s me.","Figures.",20,0,0,
+11,0,0,,"Is something wrong?","No. Just deciding if you’re worth the time.",20,0,1,
+11,0,0,,"Stop staring.","Don’t tell me what to do.",20,-1,1,
+20,0,0,,,"One of us walks off this path tied.|(Not joking.)",21,0,0,
+21,0,0,,,"Path’s empty. Won’t stay that way.",22,0,0,
+22,0,0,,"You’re serious.","I don’t waste rope on jokes.",23,0,1,
+22,0,0,,"Why me?","You’re here. Why not.",23,0,0,
+22,0,0,,"I can leave.","Then leave.|(She doesn’t move.)",23,-1,1,
+22,0,0,,"You’re pretty fiery. I kind of like that.","Heh… whatever.",23,1,0,
+23,0,0,!HasRope,"I don’t have rope.","Then open your kit.|Or the case on campus. Come back when you mean it.",23,0,0,
+23,0,0,HasRope,"Not yet.","Don’t make me wait.",23,0,0,
+23,0,2,HasRope,"(Tie her.)","(You take the coil. She fights hard — short, real — then the rope settles.)",100,0,0,"C001_Day01_Sidney_BindSidney()"
+23,0,4,HasRope,"You already know you’ll give in.|(Tie her.)","(She scowls… then holds still for the knots.)",100,0,1,"C001_Day01_Sidney_BindSidney()"
+23,0,0,HasRope,"Sorry… I like ropes. Could you tie me up?","Pathetic.|(She takes the coil.) Maybe later you’ll be the one on your knees.",200,0,-2,"C001_Day01_Sidney_BindPlayer()"
+23,0,0,HasRope,"Want them? Fight me for it.","",40,-2,0,
+40,0,0,,"(Back off.)","Smart.",23,0,0,
+40,0,0,,"(Stand your ground.)","Heh. Maybe you’re not soft.",23,1,1,
+100,0,0,,,"Damn it…|(She tests the knots once. Breath short. Eyes hard.)",101,0,0,
+101,0,0,,,"You actually did it.|(Not soft. Cataloguing.)",110,0,0,
+110,0,0,,"(Finish the knots.)","Would fighting change anything?|Finish. Or don’t waste my time.",111,0,2,
+110,0,0,,"You’re not fighting hard.","I’m not begging either.",111,0,1,
+110,0,0,,"Sorry.","Don’t apologize with rope in your hands.",111,-1,1,
+111,0,0,,,"Still bound.|Waiting to see what you do with that.",115,0,0,
+115,0,0,,"The ropes look good on you.","…Tch. Whatever.",116,0,1,
+115,0,0,,"How does it feel?","Tight enough.|I’ll remember.",116,0,2,
+115,0,0,,"You look different.","Stop staring.",116,-1,1,
+116,0,0,,"(Untie her.)","…Do it then.|(Watches your hands.)",150,1,0,"C001_Day01_Sidney_UntieSidney()"
+116,0,0,,"If I untie you, can I tie you up again later?","Deal.",150,1,1,"C001_Day01_Sidney_UntieSidney()"
+116,0,0,,"If I untie you, will you tie me up later?","Heh… looking forward to it.",150,1,-2,"C001_Day01_Sidney_UntieSidney()"
+116,0,0,,"I’ll leave you like this.","You’re not serious.|Untie me.",130,-2,1,
+116,0,0,,"(Wait a moment.)","Don’t.|Finish this or free me.",116,-1,1,
+130,0,0,,,"Untie me.|(Not a plea. An order.)",131,0,0,
+131,0,0,,"I was joking. I’ll untie you.","Then stop talking and do it.",150,0,-1,"C001_Day01_Sidney_UntieSidney()"
+131,0,0,,"No. I’m leaving you.","She goes still.|Someone will cut me loose. I will remember who walked.",140,-3,2,"C001_Day01_Sidney_LeaveBoundFlag()"
+131,0,0,,"Calm down.","Don’t tell me that while I’m tied.",131,-2,1,
+140,0,0,,,"She understands.|(Something cold settles.) She will not forget.",141,0,0,
+141,0,0,,"(Leave her on the path.)","She doesn’t call after you.",310,-2,1,"C001_Day01_Sidney_LeaveToCampus()"
+141,0,0,,"…Sorry.","Sorry doesn’t undo the knots.|Go.",310,-1,0,"C001_Day01_Sidney_LeaveToCampus()"
+150,0,0,,,"You free her wrists.|(She rolls them once. Shoves you half a step — or doesn’t.)",151,0,0,
+151,0,0,,"We’re even.","Not even.|Unfinished.",300,2,0,
+151,0,0,,"Don’t touch me again.","(She almost smirks.) We’ll see.",300,0,1,
+151,0,0,,"Thanks for not making it worse.","Don’t thank me yet.",300,1,0,
+200,0,0,,,"(She straps your wrists. No hesitation.)|Pathetic. You asked for it.",201,0,0,
+201,0,0,,,"Standard issue works both ways.|Tch.",210,0,0,
+210,0,0,,"…Tight enough.","I know.|You wanted this.",211,0,-2,
+210,0,0,,"You didn’t have to go that hard.","You asked.|I don’t do soft when someone begs.",211,0,-2,
+210,0,0,,"(Test the knots.)","Stop wriggling.|You’re the one who asked.",211,0,-1,
+211,0,0,,"Are you leaving me like this?","No.|Not today. Don’t get used to mercy.",220,1,0,"C001_Day01_Sidney_ReleasePlayer()"
+211,0,0,,"(Wait.)","She takes her time on purpose.|You asked for this.",220,0,-2,"C001_Day01_Sidney_ReleasePlayer()"
+220,0,0,,,"The rope comes off.|(She doesn’t pretend it meant nothing.)",221,0,0,
+221,0,0,,"Thank you.","For what.|The lesson, or the release?",300,1,-1,
+221,0,0,,"That was fast.","Don’t get used to mercy.",300,0,-2,
+221,0,0,,"I’ll remember this.","Good.|So will I.",300,1,-1,
+300,0,0,,,"Path’s done for now.|Weekend isn’t.",301,0,0,
+301,0,0,,"So that’s day one.","On this path.|Yeah.",310,1,0,
+301,0,0,,"Will I see you tomorrow?","You will.|Whether I’m kind depends on how you left things.",310,2,0,
+301,0,0,,"I won’t forget.","Good.|Neither will I.",310,2,0,
+301,0,0,,"(Nod and step back.)","She holds your gaze one more second, then looks past you.",310,0,0,
+310,0,0,,,"Go.|Sleep. Paths’ll still be here.",311,0,0,
+311,0,0,,"(Head back to campus.)","She doesn’t follow.",311,0,0,"C001_Day01_Sidney_LeaveToCampus()"
+311,0,0,,"…Take care.","You first, transfer.",311,1,0,"C001_Day01_Sidney_LeaveToCampus()"
