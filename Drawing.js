@@ -5,13 +5,13 @@
 var UI_W = 1920;
 var UI_H = 1280;
 var UI_TOP_H = 100;
-var UI_BOTTOM_Y = 1120;
-var UI_BOTTOM_H = 160;
+var UI_BOTTOM_Y = 1080;
+var UI_BOTTOM_H = 200;
 var UI_ICON = 90;
-var UI_OPT_X = 1420;
-var UI_OPT_W = 480;
-var UI_OPT_H = 110;
-var UI_OPT_TOP = 120;
+var UI_OPT_X = 1380;
+var UI_OPT_W = 520;
+var UI_OPT_H = 100;
+var UI_OPT_TOP = 140;
 var UI_OPT_GAP = 8;
 var UI_FONT = "34px Arial";
 var UI_FONT_SM = "28px Arial";
@@ -217,55 +217,41 @@ function DrawPosNegValue(Value, X, Y) {
 	MainCanvas.font = UI_FONT_SM;
 	MainCanvas.textAlign = "center";
 	MainCanvas.textBaseline = "middle";
-	if (Value == 0) { MainCanvas.fillStyle = "black"; MainCanvas.fillText("---", X, Y); }
-	if (Value > 0) { MainCanvas.fillStyle = "#00AA00"; MainCanvas.fillText("+" + Value.toString(), X, Y); }
-	if (Value < 0) { MainCanvas.fillStyle = "#CC0000"; MainCanvas.fillText(Value.toString(), X, Y); }
+	if (Value == 0) { MainCanvas.fillStyle = "#FFFFFF"; MainCanvas.fillText("0", X, Y); }
+	if (Value > 0) { MainCanvas.fillStyle = "#7CFF7C"; MainCanvas.fillText("+" + Value.toString(), X, Y); }
+	if (Value < 0) { MainCanvas.fillStyle = "#FF6B6B"; MainCanvas.fillText(Value.toString(), X, Y); }
 }
 
 function DrawActorStatsBar() {
 	if (CurrentActor == "") return;
 
-	// Vertical stats panel on the right side of the bottom bar
-	var panelX = 1520;
-	var panelW = 380;
-	var rowH = 32;
-	var startY = UI_BOTTOM_Y + 20;
+	// Name + love/sub on the right of the dialogue bar (Bondage College style)
+	var panelX = 1480;
+	var startY = UI_BOTTOM_Y + 28;
 
-	MainCanvas.font = UI_FONT_SM;
-	MainCanvas.fillStyle = "black";
 	MainCanvas.textAlign = "left";
 	MainCanvas.textBaseline = "middle";
-
-	// Name
-	MainCanvas.font = UI_FONT;
-	MainCanvas.fillText(ActorGetDisplayName(), panelX, startY);
+	MainCanvas.font = "32px Arial";
+	MainCanvas.fillStyle = "#FFFFFF";
+	var name = (typeof ActorGetDisplayName === "function") ? ActorGetDisplayName() : CurrentActor;
+	MainCanvas.fillText(name, panelX, startY);
 	if (CurrentActor == Common_PlayerLover)
-		DrawImage("Icons/Lover.png", panelX + 200, startY - 20);
+		DrawImage("Icons/Lover.png", panelX + Math.min(220, MainCanvas.measureText(name).width + 12), startY - 20);
 
-	// Love
-	var y = startY + rowH;
-	DrawImage("Icons/Heart.png", panelX, y - 20);
-	DrawPosNegValue(ActorGetValue(ActorLove), panelX + 90, y);
+	var y = startY + 36;
+	DrawImage("Icons/Heart.png", panelX, y - 18);
+	MainCanvas.font = "26px Arial";
+	MainCanvas.fillStyle = "#FFB0C0";
+	MainCanvas.fillText("Love", panelX + 40, y);
+	DrawPosNegValue(ActorGetValue(ActorLove), panelX + 130, y);
 
-	// Submission / Domination
-	y += rowH;
-	if (ActorGetValue(ActorOwner) == "Player") DrawImage("Icons/Collared.png", panelX, y - 20);
-	else if (CurrentActor == Common_PlayerOwner) DrawImage("Icons/Owner.png", panelX, y - 20);
-	else DrawImage("Icons/Submission.png", panelX, y - 20);
-	DrawPosNegValue(ActorGetValue(ActorSubmission), panelX + 90, y);
-
-	// Orgasm count
-	y += rowH;
-	DrawImage("Icons/Orgasm.png", panelX, y - 20);
-	MainCanvas.font = UI_FONT_SM;
-	MainCanvas.fillStyle = "black";
-	MainCanvas.textAlign = "center";
-	MainCanvas.fillText(ActorGetValue(ActorOrgasmCount).toString(), panelX + 90, y);
-
-	// Bondage count
-	y += rowH;
-	DrawImage("Icons/Bondage.png", panelX, y - 20);
-	MainCanvas.fillText(ActorGetValue(ActorBondageCount).toString(), panelX + 90, y);
+	y += 34;
+	if (ActorGetValue(ActorOwner) == "Player") DrawImage("Icons/Collared.png", panelX, y - 18);
+	else if (CurrentActor == Common_PlayerOwner) DrawImage("Icons/Owner.png", panelX, y - 18);
+	else DrawImage("Icons/Submission.png", panelX, y - 18);
+	MainCanvas.fillStyle = "#B0D0FF";
+	MainCanvas.fillText("Sub", panelX + 40, y);
+	DrawPosNegValue(ActorGetValue(ActorSubmission), panelX + 130, y);
 }
 
 function DrawWrappedLines(text, x, y, maxW, lineH, color) {
@@ -295,9 +281,9 @@ function DrawWrappedLines(text, x, y, maxW, lineH, color) {
 }
 
 function DrawIntro(Intro, CurrentStagePosition, LoveLevel, SubLevel) {
-	// Transparent dialogue panel (characters can sit lower / show through)
-	DrawRect(0, UI_BOTTOM_Y, UI_W, UI_BOTTOM_H, "rgba(12,8,18,0.38)");
-	DrawRect(0, UI_BOTTOM_Y, UI_W, 2, "rgba(255,200,220,0.25)");
+	// Transparent dialogue bar (Bondage College style bottom text + right stats)
+	DrawRect(0, UI_BOTTOM_Y, UI_W, UI_BOTTOM_H, "rgba(8,6,14,0.42)");
+	DrawRect(0, UI_BOTTOM_Y, UI_W, 2, "rgba(255,200,220,0.3)");
 	var ShowText = "";
 	if (OverridenIntroText != "")
 		ShowText = OverridenIntroText;
@@ -306,25 +292,27 @@ function DrawIntro(Intro, CurrentStagePosition, LoveLevel, SubLevel) {
 			if (Intro[I][IntroStage] == CurrentStagePosition)
 				if (ActorInteractionAvailable(Intro[I][IntroLoveReq], Intro[I][IntroSubReq], Intro[I][IntroVarReq], Intro[I][IntroText], true))
 					ShowText = Intro[I][IntroText];
-	MainCanvas.font = UI_FONT_SM;
-	DrawWrappedLines(ShowText, 40, UI_BOTTOM_Y + 16, 1180, 34, "#ffffff");
+	MainCanvas.font = "30px Arial";
+	// Leave room on the right for name/stats
+	DrawWrappedLines(ShowText, 36, UI_BOTTOM_Y + 18, 1400, 36, "#ffffff");
 	DrawActorStatsBar();
 }
 
 function DrawOption(OptionText, Index) {
-	if (OptionText.substr(0, 1) == "@") OptionText = OptionText.substr(1);
+	if (OptionText && OptionText.substr(0, 1) == "@") OptionText = OptionText.substr(1);
 	var Left = UI_OPT_X;
 	var Top = UI_OPT_TOP + Index * (UI_OPT_H + UI_OPT_GAP);
-	DrawRect(Left, Top, UI_OPT_W, UI_OPT_H, "rgba(12,8,18,0.45)");
-	MainCanvas.strokeStyle = "rgba(255,255,255,0.25)";
+	var hover = (MouseX >= Left) && (MouseX <= Left + UI_OPT_W) && (MouseY >= Top) && (MouseY <= Top + UI_OPT_H) && !IsMobile;
+	DrawRect(Left, Top, UI_OPT_W, UI_OPT_H, hover ? "rgba(50,24,40,0.88)" : "rgba(12,8,18,0.78)");
+	MainCanvas.strokeStyle = hover ? "rgba(255,200,220,0.9)" : "rgba(255,255,255,0.35)";
 	MainCanvas.lineWidth = 2;
 	MainCanvas.strokeRect(Left, Top, UI_OPT_W, UI_OPT_H);
-	var hover = (MouseX >= Left) && (MouseX <= Left + UI_OPT_W) && (MouseY >= Top) && (MouseY <= Top + UI_OPT_H) && !IsMobile;
-	MainCanvas.font = "24px Arial";
+	MainCanvas.font = "26px Arial";
 	MainCanvas.textAlign = "center";
 	MainCanvas.textBaseline = "middle";
 	MainCanvas.fillStyle = hover ? "#7CFF7C" : "#FFFFFF";
-	var maxW = UI_OPT_W - 28;
+	var maxW = UI_OPT_W - 36;
+	if (!OptionText) OptionText = "";
 	if (MainCanvas.measureText(OptionText).width <= maxW) {
 		MainCanvas.fillText(OptionText, Left + UI_OPT_W / 2, Top + UI_OPT_H / 2);
 	} else {
@@ -346,6 +334,8 @@ function DrawOption(OptionText, Index) {
 		MainCanvas.fillText(l1, Left + UI_OPT_W / 2, Top + UI_OPT_H / 2 - 16);
 		MainCanvas.fillText(l2, Left + UI_OPT_W / 2, Top + UI_OPT_H / 2 + 16);
 	}
+	MainCanvas.textAlign = "left";
+	MainCanvas.textBaseline = "alphabetic";
 }
 
 function GetAvailableOptions(Stage, CurrentStagePosition) {

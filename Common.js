@@ -358,6 +358,9 @@ function GetCSVText(CSVArray, Tag) {
 function LeaveButtonClick() {
 	if (!((MouseX >= UI_W - 100) && (MouseX <= UI_W) && (MouseY >= 0) && (MouseY <= UI_TOP_H))) return;
 	if (LeaveIcon == "Leave") {
+		// Allow screen to mark conversation finished before leaving
+		var leaveHook = window[CurrentChapter + "_" + CurrentScreen + "_OnLeaveIcon"];
+		if (typeof leaveHook === "function") leaveHook();
 		if (LeaveScreen != "") SetScene(LeaveChapter, LeaveScreen);
 		else if (LeaveChapter != "") SetScene(LeaveChapter, "MainHall");
 	}

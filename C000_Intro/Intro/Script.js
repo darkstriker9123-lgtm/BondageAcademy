@@ -1,46 +1,47 @@
-// Chapter 0 - Intro Load (pre-day story intro, not part of Day 01–100)
+// Chapter 0 - Intro Load (pre-day story intro)
 function C000_Intro_Intro_Load() {
-
 	LeaveIcon = "";
 	LeaveScreen = "";
 	TextPhase = 0;
 	PlayerTransitionFrame = 1;
 	if (typeof PlayerTransitionAutoTimer !== "undefined") PlayerTransitionAutoTimer = 0;
-
-	// Early morning placeholder time
-	StopTimer(8 * 60 * 60 * 1000);
-
+	if (typeof StopTimer === "function") StopTimer(8 * 60 * 60 * 1000);
 }
 
-// Chapter 0 - Intro Run
 function C000_Intro_Intro_Run() {
-
-	// Background and player (animate Player01–08)
 	DrawImage(CurrentChapter + "/" + CurrentScreen + "/Background.jpg", 0, 0);
 	if (typeof AdvancePlayerTransitionAuto === "function")
 		AdvancePlayerTransitionAuto();
 	if (typeof DrawPlayerTransition === "function")
-		DrawPlayerTransition(PlayerTransitionFrame, { x: 900, y: 40, w: 980, h: 1200, pad: 8 });
-	else
-		DrawPlayerTransition();
+		DrawPlayerTransition(PlayerTransitionFrame, { x: 1000, y: 60, w: 880, h: 1160, pad: 8 });
 
-	// Semi-transparent text panel (not opaque)
-	DrawRect(40, 10, 820, 920, "rgba(18,10,24,0.45)");
+	// Transparent story panel (left)
+	var panelX = 48, panelY = 80, panelW = 900, panelH = 1000;
+	DrawRect(panelX, panelY, panelW, panelH, "rgba(12,8,18,0.5)");
+	DrawRect(panelX, panelY, panelW, 3, "rgba(255,200,220,0.35)");
 
-	// Story intro — click to reveal lines (Bondage College style)
-	DrawText(GetText("Intro1"), 450, 50, "White");
-	if (TextPhase >= 1) DrawText(GetText("Intro2"), 450, 150, "White");
-	if (TextPhase >= 2) DrawText(GetText("Intro3"), 450, 250, "White");
-	if (TextPhase >= 3) DrawText(GetText("Intro4"), 450, 350, "White");
-	if (TextPhase >= 4) DrawText(GetText("Intro5"), 450, 450, "White");
-	if (TextPhase >= 5) DrawText(GetText("Intro6"), 450, 550, "White");
-	if (TextPhase >= 6) DrawText(GetText("Intro7"), 450, 650, "White");
-	if (TextPhase >= 7) DrawText(GetText("Intro8"), 450, 750, "White");
-	if (TextPhase >= 8) DrawText(GetText("Intro9"), 450, 850, "White");
+	var keys = ["Intro1","Intro2","Intro3","Intro4","Intro5","Intro6","Intro7","Intro8","Intro9"];
+	var y = panelY + 40;
+	MainCanvas.font = "32px Arial";
+	for (var i = 0; i < keys.length; i++) {
+		if (i > 0 && TextPhase < i) break;
+		var line = (typeof GetText === "function") ? GetText(keys[i]) : keys[i];
+		if (typeof DrawWrappedLines === "function")
+			y = DrawWrappedLines(line, panelX + 36, y, panelW - 72, 40, "#ffffff") + 18;
+		else {
+			MainCanvas.fillStyle = "#ffffff";
+			MainCanvas.textAlign = "left";
+			MainCanvas.fillText(line, panelX + 36, y);
+			y += 48;
+		}
+	}
 
+	MainCanvas.font = "24px Arial";
+	MainCanvas.fillStyle = "rgba(255,255,255,0.7)";
+	MainCanvas.textAlign = "center";
+	MainCanvas.fillText((CurrentLanguageTag == "CN") ? "点击继续" : "Click to continue", panelX + panelW / 2, panelY + panelH - 36);
 }
 
-// Chapter 0 - Intro Click
 function C000_Intro_Intro_Click() {
 	TextPhase++;
 	if (TextPhase >= 9)

@@ -5,13 +5,19 @@ var C001_Day01_Campus_StatusText = "";
 
 function C001_Day01_Campus_Load() {
 	CurrentActor = "";
-	if (typeof StopTimer === "function") StopTimer(10 * 60 * 60 * 1000);
-	if (typeof LoadText === "function") LoadText();
+	// Keep day clock running while exploring (evening limit soft)
+	if (typeof CurrentMinute === "undefined" || CurrentMinute < 450)
+		CurrentMinute = 450; // 07:30
+	if (typeof StartTimer === "function")
+		StartTimer(0, "", ""); // RunTimer on, no auto scene jump
+	else if (typeof RunTimer !== "undefined")
+		RunTimer = true;
 	LeaveIcon = "";
 	LeaveScreen = "";
 	Common_BondageAllowed = true;
 	Common_SelfBondageAllowed = false;
 	C001_Day01_Campus_StatusText = "";
+	if (typeof LoadText === "function") LoadText();
 }
 
 function C001_Day01_Campus_IsBindDone() {
@@ -40,12 +46,18 @@ function C001_Day01_Campus_Run() {
 	DrawImage(CurrentChapter + "/" + CurrentScreen + "/Background.jpg", 0, 0);
 
 	var cn = (typeof CurrentLanguageTag !== "undefined" && CurrentLanguageTag == "CN");
+	var sidneyDone = false;
+	if (typeof C001_Day01_Sidney_IsDone === "function") sidneyDone = C001_Day01_Sidney_IsDone();
+	else if (typeof C001_Day01_Sidney_Done !== "undefined" && C001_Day01_Sidney_Done) sidneyDone = true;
+	else if (typeof GameLogQuery === "function" && GameLogQuery(CurrentChapter, "", "SidneySceneDoneDay1")) sidneyDone = true;
 	var z = [
 		{ x: 80, y: 180, w: 360, h: 140, label: cn ? "公告板" : "Notice board", id: "notice" },
 		{ x: 480, y: 520, w: 360, h: 160, label: cn ? "练习绳箱" : "Rope case", id: "rope" },
-		{ x: 1100, y: 160, w: 480, h: 720, label: cn ? "小径 · Sidney" : "Path · Sidney", id: "sidney" },
 		{ x: 1620, y: 420, w: 260, h: 280, label: cn ? "宿舍" : "Dorm", id: "dorm" }
 	];
+	if (!sidneyDone) {
+		z.splice(2, 0, { x: 1100, y: 160, w: 480, h: 720, label: cn ? "小径 · Sidney" : "Path · Sidney", id: "sidney" });
+	}
 	if (C001_Day01_Campus_IsBindDone()) {
 		z.push({ x: 700, y: UI_TOP_H + 20, w: 520, h: 90, label: cn ? "结束这一天" : "End the day", id: "outro" });
 	}
@@ -84,12 +96,21 @@ function C001_Day01_Campus_Click() {
 	// Rope case → RopeSource screen
 	if (MouseX >= 480 && MouseX <= 840 && MouseY >= 520 && MouseY <= 680) {
 		C001_Day01_Campus_StatusText = "";
+		if (typeof AddMinutes === "function") AddMinutes(3);
 		SetScene(CurrentChapter, "RopeSource");
 		return;
 	}
-	// Sidney
+	// Sidney — blocked after "Take care" / scene done
 	if (MouseX >= 1100 && MouseX <= 1580 && MouseY >= 160 && MouseY <= 880) {
+		var done = false;
+		if (typeof C001_Day01_Sidney_IsDone === "function") done = C001_Day01_Sidney_IsDone();
+		else if (typeof C001_Day01_Sidney_Done !== "undefined" && C001_Day01_Sidney_Done) done = true;
+		if (done) {
+			C001_Day01_Campus_StatusText = (cn ? "今天和 Sidney 的事已经谈完了。" : "You are done talking with Sidney today.");
+			return;
+		}
 		C001_Day01_Campus_StatusText = "";
+		if (typeof AddMinutes === "function") AddMinutes(2);
 		SetScene(CurrentChapter, "Sidney");
 		return;
 	}

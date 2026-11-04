@@ -51,6 +51,8 @@ function GetCurrentTimeString() {
 }
 
 // Runs the regular timer (screen refresh + old limit system)
+var MinuteAccumulator = 0; // wall-clock ms toward next game minute
+
 function ProcessTimer() {
 
 	clearInterval(CurrentTimer);
@@ -59,10 +61,20 @@ function ProcessTimer() {
 
 	if (RunTimer) {
 		CurrentTime = CurrentTime + RunInterval;
+		// Advance the day clock (CurrentMinute) so the HUD timer moves
+		MinuteAccumulator += RunInterval;
+		if (MinuteAccumulator >= 1500) { // ~1.5s real time = 1 game minute
+			MinuteAccumulator = 0;
+			if (typeof AddMinutes === "function") AddMinutes(1);
+			else {
+				CurrentMinute = (typeof CurrentMinute === "number" ? CurrentMinute : 450) + 1;
+				if (CurrentMinute > 1440) CurrentMinute = 1440;
+			}
+		}
 
-		if (CurrentTime >= LimitTimer) {
+		if (LimitTimer > 0 && CurrentTime >= LimitTimer) {
 			CurrentTime = LimitTimer;
-			SetScene(LimitChapter, LimitScreen);
+			if (LimitChapter && LimitScreen) SetScene(LimitChapter, LimitScreen);
 		}
 	}
 
@@ -71,19 +83,28 @@ function ProcessTimer() {
 // Starts the timer and sets the limits (old system, still used by some scenes)
 function StartTimer(LTimer, LChapter, LScreen) {
 	RunTimer = true;
-	LimitTimer = LTimer;
-	LimitChapter = LChapter;
-	LimitScreen = LScreen;
+	LimitTimer = LTimer || 0;
+	LimitChapter = LChapter || "";
+	LimitScreen = LScreen || "";
 	LeaveIcon = "Wait";
 	TextPhase = 0;
+	MinuteAccumulator = 0;
 }
 
 // Stops the timer at a fixed time
 function StopTimer(FixedTime) {
 	RunTimer = false;
-	CurrentTime = FixedTime;
+	if (FixedTime != null && FixedTime !== undefined) {
+		CurrentTime = FixedTime;
+		// Keep HUD clock in sync when possible (FixedTime is ms from midnight)
+		if (typeof FixedTime === "number" && FixedTime >= 0) {
+			var m = Math.floor(FixedTime / 60000);
+			if (m >= 0 && m <= 1440) CurrentMinute = m;
+		}
+	}
 	TextPhase = 0;
-	LoadText();
+	MinuteAccumulator = 0;
+	if (typeof LoadText === "function") LoadText();
 }
 
 // ===== NEW DAY / SCHEDULE SYSTEM =====
